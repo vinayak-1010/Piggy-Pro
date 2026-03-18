@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.piggypro.controller.ReportsController"
+            fx:id="reportsRoot"
+            styleClass="dashboard-root"
+            stylesheets="@../css/app.css">
+
+    <!-- ════════════════════════════
+         SIDEBAR
+    ════════════════════════════ -->
+    <left>
+        <VBox styleClass="sidebar">
+
+            <HBox styleClass="sidebar-logo-area" alignment="CENTER_LEFT" spacing="10.0">
+                <StackPane styleClass="sidebar-logo-box">
+                    <ImageView fx:id="sidebarLogoIcon" fitWidth="18.0" fitHeight="18.0" preserveRatio="true"/>
+                </StackPane>
+                <Label styleClass="sidebar-app-name" text="Piggy Pro"/>
+            </HBox>
+
+            <Label styleClass="nav-section" text="MAIN MENU"/>
+
+            <Button fx:id="navOverview" styleClass="nav-btn" text="Overview" onAction="#handleNavOverview">
+                <graphic><ImageView fx:id="iconOverview" fitWidth="15.0" fitHeight="15.0" preserveRatio="true"/></graphic>
+                <VBox.margin><Insets top="1.0" bottom="1.0" left="8.0" right="8.0"/></VBox.margin>
+            </Button>
+            <Button fx:id="navTransactions" styleClass="nav-btn" text="Transactions" onAction="#handleNavTransactions">
+                <graphic><ImageView fx:id="iconTransactions" fitWidth="15.0" fitHeight="15.0" preserveRatio="true"/></graphic>
+                <VBox.margin><Insets top="1.0" bottom="1.0" left="8.0" right="8.0"/></VBox.margin>
+            </Button>
+            <Button fx:id="navAnalytics" styleClass="nav-btn" text="Analytics" onAction="#handleNavAnalytics">
+                <graphic><ImageView fx:id="iconAnalytics" fitWidth="15.0" fitHeight="15.0" preserveRatio="true"/></graphic>
+                <VBox.margin><Insets top="1.0" bottom="1.0" left="8.0" right="8.0"/></VBox.margin>
+            </Button>
+            <Button fx:id="navBudgets" styleClass="nav-btn" text="Budgets" onAction="#handleNavBudgets">
+                <graphic><ImageView fx:id="iconBudgets" fitWidth="15.0" fitHeight="15.0" preserveRatio="true"/></graphic>
+                <VBox.margin><Insets top="1.0" bottom="1.0" left="8.0" right="8.0"/></VBox.margin>
+            </Button>
+            <Button fx:id="navReports" styleClass="nav-btn,active" text="Reports" onAction="#handleNavReports">
+                <graphic><ImageView fx:id="iconReports" fitWidth="15.0" fitHeight="15.0" preserveRatio="true"/></graphic>
+                <VBox.margin><Insets top="1.0" bottom="1.0" left="8.0" right="8.0"/></VBox.margin>
+            </Button>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <Label styleClass="nav-section" text="PREFERENCES"/>
+
+            <Button fx:id="navSettings" styleClass="nav-btn" text="Settings" onAction="#handleNavSettings">
+                <graphic><ImageView fx:id="iconSettings" fitWidth="15.0" fitHeight="15.0" preserveRatio="true"/></graphic>
+                <VBox.margin><Insets top="1.0" bottom="1.0" left="8.0" right="8.0"/></VBox.margin>
+            </Button>
+            <Button fx:id="navHelp" styleClass="nav-btn" text="Help Center" onAction="#handleNavHelp">
+                <graphic><ImageView fx:id="iconHelp" fitWidth="15.0" fitHeight="15.0" preserveRatio="true"/></graphic>
+                <VBox.margin><Insets top="1.0" bottom="1.0" left="8.0" right="8.0"/></VBox.margin>
+            </Button>
+
+            <VBox styleClass="sidebar-bottom-area">
+                <Button fx:id="btnExport" styleClass="nav-btn,export" text="Export Data" onAction="#handleExport">
+                    <graphic><ImageView fx:id="iconExport" fitWidth="15.0" fitHeight="15.0" preserveRatio="true"/></graphic>
+                </Button>
+            </VBox>
+
+        </VBox>
+    </left>
+
+    <!-- ════════════════════════════
+         CENTER
+    ════════════════════════════ -->
+    <center>
+        <VBox>
+
+            <!-- TOPBAR -->
+            <HBox styleClass="topbar" alignment="CENTER_LEFT" spacing="12.0">
+                <HBox styleClass="search-box" alignment="CENTER_LEFT" spacing="7.0">
+                    <ImageView fx:id="searchIcon" fitWidth="13.0" fitHeight="13.0"
+                               preserveRatio="true" styleClass="field-icon"/>
+                    <TextField fx:id="searchField" styleClass="search-field"
+                               promptText="Search transactions..."
+                               HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <Region HBox.hgrow="ALWAYS"/>
+                <StackPane>
+                    <Button fx:id="notifBtn" styleClass="notif-btn" onAction="#handleNotifications">
+                        <graphic><ImageView fx:id="notifIcon" fitWidth="15.0" fitHeight="15.0" preserveRatio="true"/></graphic>
+                    </Button>
+                    <Circle fx:id="notifDot" styleClass="notif-dot"
+                            radius="3.5" translateX="8.0" translateY="-8.0"/>
+                </StackPane>
+                <HBox styleClass="user-chip" alignment="CENTER_LEFT" spacing="7.0">
+                    <StackPane styleClass="user-avatar">
+                        <Label fx:id="avatarInitials" styleClass="avatar-initials" text="VS"/>
+                    </StackPane>
+                    <Label fx:id="userDisplayName" styleClass="user-display-name" text="Vinayak"/>
+                    <ImageView fx:id="chevronIcon" fitWidth="12.0" fitHeight="12.0"
+                               preserveRatio="true" styleClass="field-icon"/>
+                </HBox>
+            </HBox>
+
+            <!-- SCROLLABLE CONTENT -->
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                        styleClass="content-scroll"
+                        hbarPolicy="NEVER" vbarPolicy="AS_NEEDED">
+                <content>
+                    <VBox styleClass="content-area" spacing="14.0">
+
+                        <!-- PAGE HEADER -->
+                        <HBox alignment="CENTER_LEFT">
+                            <VBox spacing="0.0">
+                                <Label styleClass="page-title" text="Reports"/>
+                                <Label styleClass="page-subtitle"
+                                       text="Generate and export detailed expense reports"/>
+                            </VBox>
+                        </HBox>
+
+                        <!-- FILTER BAR -->
+                        <HBox styleClass="report-filter-bar" alignment="CENTER_LEFT" spacing="10.0">
+                            <Label styleClass="report-filter-label" text="REPORT FOR"/>
+                            <ComboBox fx:id="filterReportType"
+                                      styleClass="filter-combo"
+                                      onAction="#handleReportTypeChange"/>
+                            <ComboBox fx:id="filterMonth"
+                                      styleClass="filter-combo"/>
+                            <Region styleClass="filter-sep"/>
+                            <DatePicker fx:id="filterDateFrom"
+                                        styleClass="filter-date"
+                                        promptText="From"/>
+                            <Label styleClass="filter-range-label" text="to"/>
+                            <DatePicker fx:id="filterDateTo"
+                                        styleClass="filter-date"
+                                        promptText="To"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button fx:id="generateBtn"
+                                    styleClass="generate-btn"
+                                    text="Generate"
+                                    onAction="#handleGenerate">
+                                <graphic><ImageView fx:id="generateIcon" fitWidth="13.0" fitHeight="13.0" preserveRatio="true"/></graphic>
+                            </Button>
+                        </HBox>
+
+                        <!-- MAIN CONTENT ROW -->
+                        <HBox spacing="14.0" VBox.vgrow="ALWAYS">
+
+                            <!-- LEFT — Summary + Table -->
+                            <VBox spacing="12.0" HBox.hgrow="ALWAYS">
+
+                                <!-- Summary chips -->
+                                <HBox spacing="10.0">
+                                    <VBox styleClass="report-summary-chip" spacing="2.0" HBox.hgrow="ALWAYS">
+                                        <Label styleClass="report-chip-label" text="Total Expenses"/>
+                                        <Label fx:id="chipExpenses" styleClass="report-chip-value-red" text="Rs. 0"/>
+                                    </VBox>
+                                    <VBox styleClass="report-summary-chip" spacing="2.0" HBox.hgrow="ALWAYS">
+                                        <Label styleClass="report-chip-label" text="Total Income"/>
+                                        <Label fx:id="chipIncome" styleClass="report-chip-value-green" text="Rs. 0"/>
+                                    </VBox>
+                                    <VBox styleClass="report-summary-chip" spacing="2.0" HBox.hgrow="ALWAYS">
+                                        <Label styleClass="report-chip-label" text="Net Savings"/>
+                                        <Label fx:id="chipNet" styleClass="report-chip-value-blue" text="Rs. 0"/>
+                                    </VBox>
+                                    <VBox styleClass="report-summary-chip" spacing="2.0" HBox.hgrow="ALWAYS">
+                                        <Label styleClass="report-chip-label" text="Transactions"/>
+                                        <Label fx:id="chipCount" styleClass="report-chip-value" text="0"/>
+                                    </VBox>
+                                </HBox>
+
+                                <!-- Report table -->
+                                <VBox styleClass="report-table-card" VBox.vgrow="ALWAYS">
+                                    <TableView fx:id="reportTable"
+                                               styleClass="table-view"
+                                               VBox.vgrow="ALWAYS"
+                                               minHeight="280.0"/>
+                                </VBox>
+
+                            </VBox>
+
+                            <!-- RIGHT — Export + Recent -->
+                            <VBox spacing="14.0" prefWidth="272.0" minWidth="260.0">
+
+                                <!-- Export format card -->
+                                <VBox styleClass="export-panel-card" spacing="14.0">
+
+                                    <Label styleClass="export-panel-title" text="Export Report"/>
+                                    <Label styleClass="export-panel-sub"
+                                           text="Choose a format to download"/>
+
+                                    <!-- PDF option -->
+                                    <HBox fx:id="optPdf"
+                                          styleClass="format-option,selected"
+                                          alignment="CENTER_LEFT" spacing="12.0"
+                                          onMouseClicked="#handleSelectPdf">
+                                        <StackPane styleClass="format-icon-box,format-icon-pdf">
+                                            <ImageView fx:id="pdfFormatIcon"
+                                                       fitWidth="16.0" fitHeight="16.0"
+                                                       preserveRatio="true"/>
+                                        </StackPane>
+                                        <VBox spacing="1.0" HBox.hgrow="ALWAYS">
+                                            <Label styleClass="format-name" text="PDF Report"/>
+                                            <Label styleClass="format-desc" text="Formatted with charts and tables"/>
+                                        </VBox>
+                                        <Region fx:id="checkPdf" styleClass="format-check,on"
+                                                minWidth="18.0" prefWidth="18.0"
+                                                minHeight="18.0" prefHeight="18.0"/>
+                                    </HBox>
+
+                                    <!-- Excel option -->
+                                    <HBox fx:id="optExcel"
+                                          styleClass="format-option"
+                                          alignment="CENTER_LEFT" spacing="12.0"
+                                          onMouseClicked="#handleSelectExcel">
+                                        <StackPane styleClass="format-icon-box,format-icon-excel">
+                                            <ImageView fx:id="excelFormatIcon"
+                                                       fitWidth="16.0" fitHeight="16.0"
+                                                       preserveRatio="true"/>
+                                        </StackPane>
+                                        <VBox spacing="1.0" HBox.hgrow="ALWAYS">
+                                            <Label styleClass="format-name" text="Excel Spreadsheet"/>
+                                            <Label styleClass="format-desc" text="Raw data in .xlsx format"/>
+                                        </VBox>
+                                        <Region fx:id="checkExcel" styleClass="format-check"
+                                                minWidth="18.0" prefWidth="18.0"
+                                                minHeight="18.0" prefHeight="18.0"/>
+                                    </HBox>
+
+                                    <!-- Download button -->
+                                    <Button fx:id="downloadBtn"
+                                            styleClass="download-btn"
+                                            text="Download Report"
+                                            maxWidth="Infinity"
+                                            onAction="#handleDownload">
+                                        <graphic>
+                                            <ImageView fx:id="downloadIcon"
+                                                       fitWidth="14.0" fitHeight="14.0"
+                                                       preserveRatio="true"/>
+                                        </graphic>
+                                    </Button>
+
+                                </VBox>
+
+                                <!-- Recent exports -->
+                                <VBox styleClass="recent-exports-card" spacing="0.0">
+                                    <Label styleClass="recent-exports-title" text="Recent Exports"/>
+                                    <!-- Rows built dynamically by controller -->
+                                    <VBox fx:id="recentExportsList" spacing="0.0"/>
+                                </VBox>
+
+                            </VBox>
+
+                        </HBox>
+
+                        <Region prefHeight="8.0"/>
+
+                    </VBox>
+                </content>
+            </ScrollPane>
+
+        </VBox>
+    </center>
+
+</BorderPane>
