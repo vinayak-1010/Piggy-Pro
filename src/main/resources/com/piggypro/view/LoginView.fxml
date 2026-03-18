@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.geometry.Insets?>
+
+<StackPane xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.piggypro.controller.LoginController"
+           fx:id="rootPane"
+           styleClass="root-pane"
+           stylesheets="@../css/app.css">
+
+    <HBox styleClass="main-container" alignment="CENTER">
+
+        <!-- ════════════════════════════
+             LEFT — Brand Panel
+        ════════════════════════════ -->
+        <VBox styleClass="brand-panel" alignment="CENTER_LEFT"
+              prefWidth="420.0" minWidth="380.0" maxWidth="420.0">
+
+            <!-- Logo mark -->
+            <StackPane prefWidth="52.0" prefHeight="52.0"
+                       maxWidth="52.0" maxHeight="52.0">
+                <Rectangle styleClass="logo-circle"
+                           width="52.0" height="52.0"
+                           arcWidth="28.0" arcHeight="28.0"/>
+                <ImageView fx:id="logoIcon"
+                           fitWidth="24.0" fitHeight="24.0"
+                           preserveRatio="true"/>
+                <VBox.margin>
+                    <Insets bottom="28.0"/>
+                </VBox.margin>
+            </StackPane>
+
+            <Label styleClass="brand-title-1" text="Piggy"/>
+            <Label styleClass="brand-title-2" text="Pro"/>
+
+            <Region prefHeight="16.0"/>
+
+            <Label styleClass="brand-tagline"
+                   text="Smart spending starts&#10;with smart tracking."
+                   wrapText="true"/>
+
+            <Region prefHeight="38.0"/>
+
+            <!-- Feature list -->
+            <VBox spacing="14.0">
+
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <StackPane styleClass="feature-icon-box">
+                        <ImageView fx:id="featureIcon1"
+                                   fitWidth="15.0" fitHeight="15.0"
+                                   preserveRatio="true"/>
+                    </StackPane>
+                    <Label styleClass="feature-text" text="Visual spending reports"/>
+                </HBox>
+
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <StackPane styleClass="feature-icon-box">
+                        <ImageView fx:id="featureIcon2"
+                                   fitWidth="15.0" fitHeight="15.0"
+                                   preserveRatio="true"/>
+                    </StackPane>
+                    <Label styleClass="feature-text" text="Smart budget alerts"/>
+                </HBox>
+
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <StackPane styleClass="feature-icon-box">
+                        <ImageView fx:id="featureIcon3"
+                                   fitWidth="15.0" fitHeight="15.0"
+                                   preserveRatio="true"/>
+                    </StackPane>
+                    <Label styleClass="feature-text" text="Export to PDF and Excel"/>
+                </HBox>
+
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <StackPane styleClass="feature-icon-box">
+                        <ImageView fx:id="featureIcon4"
+                                   fitWidth="15.0" fitHeight="15.0"
+                                   preserveRatio="true"/>
+                    </StackPane>
+                    <Label styleClass="feature-text" text="100% offline and private"/>
+                </HBox>
+
+            </VBox>
+
+            <Region prefHeight="44.0"/>
+
+            <!-- Badge -->
+            <HBox styleClass="brand-badge" alignment="CENTER_LEFT" spacing="7.0">
+                <Circle styleClass="badge-dot" radius="3.5"/>
+                <Label styleClass="badge-text"
+                       text="All data stored locally on your device"/>
+            </HBox>
+
+        </VBox>
+
+        <!-- ════════════════════════════
+             RIGHT — Form Panel
+        ════════════════════════════ -->
+        <VBox styleClass="form-panel" alignment="CENTER" spacing="0.0">
+
+            <!-- Theme toggle -->
+            <HBox alignment="CENTER_RIGHT" styleClass="theme-toggle-bar">
+                <ToggleButton fx:id="themeToggle"
+                              styleClass="theme-toggle"
+                              text="Light mode"
+                              onAction="#handleThemeToggle"/>
+            </HBox>
+
+            <!-- Card -->
+            <VBox styleClass="form-card" alignment="CENTER">
+
+                <!-- Tabs -->
+                <HBox styleClass="tab-switcher" alignment="CENTER">
+                    <ToggleButton fx:id="loginTab"
+                                  styleClass="tab-btn"
+                                  text="Sign In"
+                                  selected="true"
+                                  onAction="#showLogin"/>
+                    <ToggleButton fx:id="signupTab"
+                                  styleClass="tab-btn"
+                                  text="Sign Up"
+                                  onAction="#showSignup"/>
+                </HBox>
+
+                <Region prefHeight="24.0"/>
+
+                <!-- ───────────────────
+                     LOGIN FORM
+                ─────────────────── -->
+                <VBox fx:id="loginForm" styleClass="auth-form"
+                      spacing="0.0" visible="true" managed="true">
+
+                    <Label styleClass="form-title" text="Welcome back"/>
+                    <Label styleClass="form-subtitle"
+                           text="Sign in to your Piggy Pro account"/>
+
+                    <Region prefHeight="20.0"/>
+
+                    <!-- Username -->
+                    <VBox styleClass="field-group">
+                        <Label styleClass="field-label" text="Username"/>
+                        <HBox styleClass="input-wrapper"
+                              alignment="CENTER_LEFT" spacing="9.0">
+                            <ImageView fx:id="iconUser1" styleClass="field-icon"
+                                       fitWidth="15.0" fitHeight="15.0"
+                                       preserveRatio="true"/>
+                            <TextField fx:id="loginUsername"
+                                       styleClass="text-input"
+                                       promptText="Enter your username"
+                                       HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                    </VBox>
+
+                    <Region prefHeight="12.0"/>
+
+                    <!-- Password -->
+                    <VBox styleClass="field-group">
+                        <HBox alignment="CENTER_LEFT">
+                            <Label styleClass="field-label"
+                                   text="Password"
+                                   HBox.hgrow="ALWAYS"/>
+                            <Hyperlink styleClass="forgot-link"
+                                       text="Forgot password?"
+                                       onAction="#handleForgot"/>
+                        </HBox>
+                        <HBox styleClass="input-wrapper"
+                              alignment="CENTER_LEFT" spacing="9.0">
+                            <ImageView fx:id="iconLock1" styleClass="field-icon"
+                                       fitWidth="15.0" fitHeight="15.0"
+                                       preserveRatio="true"/>
+                            <PasswordField fx:id="loginPassword"
+                                           styleClass="text-input"
+                                           promptText="Enter your password"
+                                           HBox.hgrow="ALWAYS"/>
+                            <Button fx:id="togglePasswordBtn"
+                                    styleClass="eye-btn"
+                                    onAction="#togglePasswordVisibility">
+                                <graphic>
+                                    <ImageView fx:id="eyeIcon"
+                                               fitWidth="15.0" fitHeight="15.0"
+                                               preserveRatio="true"/>
+                                </graphic>
+                            </Button>
+                        </HBox>
+                    </VBox>
+
+                    <Region prefHeight="4.0"/>
+                    <Label fx:id="loginError" styleClass="error-label"
+                           text="" wrapText="true"/>
+                    <Region prefHeight="14.0"/>
+
+                    <Button fx:id="loginBtn"
+                            styleClass="primary-btn"
+                            text="Sign In"
+                            maxWidth="Infinity"
+                            onAction="#handleLogin">
+                        <graphic>
+                            <ImageView fx:id="loginArrow"
+                                       fitWidth="14.0" fitHeight="14.0"
+                                       preserveRatio="true"/>
+                        </graphic>
+                    </Button>
+
+                    <Region prefHeight="14.0"/>
+
+                    <HBox alignment="CENTER" spacing="5.0">
+                        <Label styleClass="switch-text"
+                               text="Don't have an account?"/>
+                        <Hyperlink styleClass="switch-link"
+                                   text="Create one"
+                                   onAction="#showSignup"/>
+                    </HBox>
+
+                </VBox>
+
+                <!-- ───────────────────
+                     SIGNUP FORM
+                ─────────────────── -->
+                <VBox fx:id="signupForm" styleClass="auth-form"
+                      spacing="0.0" visible="false" managed="false">
+
+                    <Label styleClass="form-title" text="Create account"/>
+                    <Label styleClass="form-subtitle"
+                           text="Start tracking your finances today"/>
+
+                    <Region prefHeight="18.0"/>
+
+                    <!-- Full Name -->
+                    <VBox styleClass="field-group">
+                        <Label styleClass="field-label" text="Full Name"/>
+                        <HBox styleClass="input-wrapper"
+                              alignment="CENTER_LEFT" spacing="9.0">
+                            <ImageView fx:id="iconUser2" styleClass="field-icon"
+                                       fitWidth="15.0" fitHeight="15.0"
+                                       preserveRatio="true"/>
+                            <TextField fx:id="signupName"
+                                       styleClass="text-input"
+                                       promptText="Your full name"
+                                       HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                    </VBox>
+
+                    <Region prefHeight="11.0"/>
+
+                    <!-- Username -->
+                    <VBox styleClass="field-group">
+                        <Label styleClass="field-label" text="Username"/>
+                        <HBox styleClass="input-wrapper"
+                              alignment="CENTER_LEFT" spacing="9.0">
+                            <ImageView fx:id="iconAt" styleClass="field-icon"
+                                       fitWidth="15.0" fitHeight="15.0"
+                                       preserveRatio="true"/>
+                            <TextField fx:id="signupUsername"
+                                       styleClass="text-input"
+                                       promptText="Choose a username"
+                                       HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                    </VBox>
+
+                    <Region prefHeight="11.0"/>
+
+                    <!-- Email -->
+                    <VBox styleClass="field-group">
+                        <Label styleClass="field-label" text="Email"/>
+                        <HBox styleClass="input-wrapper"
+                              alignment="CENTER_LEFT" spacing="9.0">
+                            <ImageView fx:id="iconMail" styleClass="field-icon"
+                                       fitWidth="15.0" fitHeight="15.0"
+                                       preserveRatio="true"/>
+                            <TextField fx:id="signupEmail"
+                                       styleClass="text-input"
+                                       promptText="your@email.com"
+                                       HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                    </VBox>
+
+                    <Region prefHeight="11.0"/>
+
+                    <!-- Password -->
+                    <VBox styleClass="field-group">
+                        <Label styleClass="field-label" text="Password"/>
+                        <HBox styleClass="input-wrapper"
+                              alignment="CENTER_LEFT" spacing="9.0">
+                            <ImageView fx:id="iconLock2" styleClass="field-icon"
+                                       fitWidth="15.0" fitHeight="15.0"
+                                       preserveRatio="true"/>
+                            <PasswordField fx:id="signupPassword"
+                                           styleClass="text-input"
+                                           promptText="Min 8 characters"
+                                           HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                        <!-- Password strength bar -->
+                        <HBox styleClass="strength-bar-container" spacing="4.0">
+                            <Region fx:id="strengthBar1" styleClass="strength-seg"
+                                    HBox.hgrow="ALWAYS"/>
+                            <Region fx:id="strengthBar2" styleClass="strength-seg"
+                                    HBox.hgrow="ALWAYS"/>
+                            <Region fx:id="strengthBar3" styleClass="strength-seg"
+                                    HBox.hgrow="ALWAYS"/>
+                            <Region fx:id="strengthBar4" styleClass="strength-seg"
+                                    HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                    </VBox>
+
+                    <Region prefHeight="11.0"/>
+
+                    <!-- Confirm Password -->
+                    <VBox styleClass="field-group">
+                        <Label styleClass="field-label" text="Confirm Password"/>
+                        <HBox styleClass="input-wrapper"
+                              alignment="CENTER_LEFT" spacing="9.0">
+                            <ImageView fx:id="iconCheck" styleClass="field-icon"
+                                       fitWidth="15.0" fitHeight="15.0"
+                                       preserveRatio="true"/>
+                            <PasswordField fx:id="signupConfirm"
+                                           styleClass="text-input"
+                                           promptText="Repeat your password"
+                                           HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                    </VBox>
+
+                    <Region prefHeight="4.0"/>
+                    <Label fx:id="signupError" styleClass="error-label"
+                           text="" wrapText="true"/>
+                    <Region prefHeight="12.0"/>
+
+                    <Button fx:id="signupBtn"
+                            styleClass="primary-btn"
+                            text="Create Account"
+                            maxWidth="Infinity"
+                            onAction="#handleSignup">
+                        <graphic>
+                            <ImageView fx:id="signupArrow"
+                                       fitWidth="14.0" fitHeight="14.0"
+                                       preserveRatio="true"/>
+                        </graphic>
+                    </Button>
+
+                    <Region prefHeight="14.0"/>
+
+                    <HBox alignment="CENTER" spacing="5.0">
+                        <Label styleClass="switch-text"
+                               text="Already have an account?"/>
+                        <Hyperlink styleClass="switch-link"
+                                   text="Sign in"
+                                   onAction="#showLogin"/>
+                    </HBox>
+
+                </VBox>
+
+            </VBox>
+
+            <Label styleClass="footer-label"
+                   text="Piggy Pro v1.0  •  Offline  •  Secure"/>
+
+        </VBox>
+
+    </HBox>
+
+</StackPane>
