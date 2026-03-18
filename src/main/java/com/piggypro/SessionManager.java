@@ -1,5 +1,7 @@
 package com.piggypro;
 
+import com.piggypro.model.User;
+
 /**
  * SessionManager.java
  * ─────────────────────────────────────────────────────
@@ -79,10 +81,19 @@ public class SessionManager {
 
     /**
      * Convenience overload — pass a pre-built UserSession.
-     * Use this once Teammate 2's User model is integrated.
      */
     public static void login(UserSession session) {
         activeSession = session;
+    }
+
+    /**
+     * Convenience overload — accepts a User model object directly.
+     * Called from LoginController after AuthService returns a User.
+     */
+    public static void login(User user) {
+        activeSession = new UserSession(
+                user.getId(), user.getUsername(),
+                user.getFullName(), user.getEmail());
     }
 
     // ── Logout ─────────────────────────────────────

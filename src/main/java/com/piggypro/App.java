@@ -3,6 +3,7 @@ package com.piggypro;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import com.piggypro.db.DBConnection;
 
 /**
  * App.java
@@ -40,9 +41,8 @@ public class App extends Application {
 
     @Override
     public void stop() {
-        // Called when the window is closed
-        // TODO: flush any pending DB writes, close DB connection
-        // DBConnection.getInstance().close();
+        // Close the SQLite connection cleanly when window is closed
+        DBConnection.getInstance().close();
     }
 
     public static void main(String[] args) {

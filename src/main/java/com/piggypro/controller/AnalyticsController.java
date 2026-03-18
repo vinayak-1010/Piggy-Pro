@@ -1,5 +1,9 @@
 package com.piggypro.controller;
 
+import com.piggypro.SceneManager;
+import com.piggypro.SessionManager;
+import com.piggypro.service.ExpenseService;
+
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
@@ -135,13 +139,17 @@ public class AnalyticsController implements Initializable {
         dateTo.setValue(activeTo);
         refreshStats();
         drawChartsAfterLayout();
+        if (SessionManager.isLoggedIn()) {
+            userDisplayName.setText(SessionManager.getUsername());
+            avatarInitials.setText(SessionManager.getInitials());
+        }
     }
 
     // ══════════════════════════════════════════════
     // ICONS
     // ══════════════════════════════════════════════
     private void loadIcons() {
-        setIcon(sidebarLogoIcon,  "logo.png");
+        setIcon(sidebarLogoIcon,  "piggy-bank.png");
         setIcon(iconOverview,     "grid.png");
         setIcon(iconTransactions, "bookmark.png");
         setIcon(iconAnalytics,    "bar-chart.png");
@@ -153,8 +161,8 @@ public class AnalyticsController implements Initializable {
         setIcon(searchIcon,       "search.png");
         setIcon(notifIcon,        "bell.png");
         setIcon(chevronIcon,      "chevron-down.png");
-        setIcon(moreIconDonut,    "more-h.png");
-        setIcon(moreIconBar,      "more-h.png");
+        setIcon(moreIconDonut,    "more-horizontal.png");
+        setIcon(moreIconBar,      "more-horizontal.png");
         setIcon(iconStatSpent,    "dollar-sign.png");
         setIcon(iconStatTop,      "star.png");
         setIcon(iconStatAvg,      "calendar.png");
@@ -176,6 +184,28 @@ public class AnalyticsController implements Initializable {
     // STATS
     // ══════════════════════════════════════════════
     private void refreshStats() {
+        // Use real DB data if user is logged in, otherwise fall back to sample data
+        if (SessionManager.isLoggedIn()) {
+            try {
+                int userId = SessionManager.getUserId();
+                ExpenseService svc = ExpenseService.getInstance();
+                double expenses = svc.getTotalExpenses(userId, activeFrom, activeTo);
+                double income   = svc.getTotalIncome(userId, activeFrom, activeTo);
+                java.util.Map<String, Double> cats = svc.getCategoryTotals(userId, activeFrom, activeTo);
+                long days = Math.max(1, java.time.temporal.ChronoUnit.DAYS.between(activeFrom, activeTo) + 1);
+                String topCat = cats.isEmpty() ? "—" : cats.keySet().iterator().next();
+                double topAmt = cats.isEmpty() ? 0 : cats.values().iterator().next();
+                statTotalSpent.setText("Rs. " + String.format("%,.0f", expenses));
+                statSpentSub.setText("From " + activeFrom + " to " + activeTo);
+                statTopCategory.setText(topCat.split(" ")[0]);
+                statTopCatSub.setText("Rs. " + String.format("%,.0f", topAmt) + " spent");
+                statAvgDay.setText("Rs. " + String.format("%,.0f", expenses / days));
+                donutCenterValue.setText("Rs." + String.format("%,.0f", expenses / 1000) + "K");
+                return;
+            } catch (Exception e) {
+                System.out.println("Analytics data error: " + e.getMessage());
+            }
+        }
         double total   = CATEGORY_DATA.values().stream().mapToDouble(Double::doubleValue).sum();
         long   days    = Math.max(1,
                 java.time.temporal.ChronoUnit.DAYS.between(activeFrom, activeTo) + 1);
@@ -460,11 +490,26 @@ public class AnalyticsController implements Initializable {
     // ══════════════════════════════════════════════
     // NAV HANDLERS
     // ══════════════════════════════════════════════
-    @FXML private void handleNavOverview()     { setActiveNav(navOverview); }
-    @FXML private void handleNavTransactions() { setActiveNav(navTransactions); }
-    @FXML private void handleNavAnalytics()    { setActiveNav(navAnalytics); }
-    @FXML private void handleNavBudgets()      { setActiveNav(navBudgets); }
-    @FXML private void handleNavReports()      { setActiveNav(navReports); }
+    @FXML private void handleNavOverview()     {
+        SceneManager.navigateTo(SceneManager.Screen.DASHBOARD);
+        setActiveNav(navOverview);
+    }
+    @FXML private void handleNavTransactions() {
+        SceneManager.navigateTo(SceneManager.Screen.TRANSACTIONS);
+        setActiveNav(navTransactions);
+    }
+    @FXML private void handleNavAnalytics()    {
+        SceneManager.navigateTo(SceneManager.Screen.ANALYTICS);
+        setActiveNav(navAnalytics);
+    }
+    @FXML private void handleNavBudgets()      {
+        SceneManager.navigateTo(SceneManager.Screen.BUDGETS);
+        setActiveNav(navBudgets);
+    }
+    @FXML private void handleNavReports()      {
+        SceneManager.navigateTo(SceneManager.Screen.REPORTS);
+        setActiveNav(navReports);
+    }
     @FXML private void handleNavSettings()     { setActiveNav(navSettings); }
     @FXML private void handleNavHelp()         { setActiveNav(navHelp); }
 

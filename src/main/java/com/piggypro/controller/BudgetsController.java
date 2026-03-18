@@ -1,5 +1,9 @@
 package com.piggypro.controller;
 
+import com.piggypro.SceneManager;
+import com.piggypro.SessionManager;
+import com.piggypro.service.ExpenseService;
+
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
 import javafx.collections.FXCollections;
@@ -157,14 +161,34 @@ public class BudgetsController implements Initializable {
         loadIcons();
         setupFormCombos();
         loadSampleData();
+        loadRealSpentAmounts();
         refreshView();
+        if (SessionManager.isLoggedIn()) {
+            userDisplayName.setText(SessionManager.getUsername());
+            avatarInitials.setText(SessionManager.getInitials());
+        }
+    }
+
+    // Load real spent amounts from DB and update budget objects
+    private void loadRealSpentAmounts() {
+        if (!SessionManager.isLoggedIn()) return;
+        int userId = SessionManager.getUserId();
+        for (Budget b : allBudgets) {
+            try {
+                double spent = ExpenseService.getInstance()
+                        .getSpentInCategory(userId, b.category, b.month);
+                b.spent = spent;
+            } catch (Exception e) {
+                System.out.println("Budget spent load error: " + e.getMessage());
+            }
+        }
     }
 
     // ══════════════════════════════════════════════
     // ICONS
     // ══════════════════════════════════════════════
     private void loadIcons() {
-        setIcon(sidebarLogoIcon,  "logo.png");
+        setIcon(sidebarLogoIcon,  "piggy-bank.png");
         setIcon(iconOverview,     "grid.png");
         setIcon(iconTransactions, "bookmark.png");
         setIcon(iconAnalytics,    "bar-chart.png");
@@ -579,11 +603,26 @@ public class BudgetsController implements Initializable {
     // ══════════════════════════════════════════════
     // NAV + MISC HANDLERS
     // ══════════════════════════════════════════════
-    @FXML private void handleNavOverview()     { setActiveNav(navOverview); }
-    @FXML private void handleNavTransactions() { setActiveNav(navTransactions); }
-    @FXML private void handleNavAnalytics()    { setActiveNav(navAnalytics); }
-    @FXML private void handleNavBudgets()      { setActiveNav(navBudgets); }
-    @FXML private void handleNavReports()      { setActiveNav(navReports); }
+    @FXML private void handleNavOverview()     {
+        SceneManager.navigateTo(SceneManager.Screen.DASHBOARD);
+        setActiveNav(navOverview);
+    }
+    @FXML private void handleNavTransactions() {
+        SceneManager.navigateTo(SceneManager.Screen.TRANSACTIONS);
+        setActiveNav(navTransactions);
+    }
+    @FXML private void handleNavAnalytics()    {
+        SceneManager.navigateTo(SceneManager.Screen.ANALYTICS);
+        setActiveNav(navAnalytics);
+    }
+    @FXML private void handleNavBudgets()      {
+        SceneManager.navigateTo(SceneManager.Screen.BUDGETS);
+        setActiveNav(navBudgets);
+    }
+    @FXML private void handleNavReports()      {
+        SceneManager.navigateTo(SceneManager.Screen.REPORTS);
+        setActiveNav(navReports);
+    }
     @FXML private void handleNavSettings()     { setActiveNav(navSettings); }
     @FXML private void handleNavHelp()         { setActiveNav(navHelp); }
     @FXML private void handleNotifications()   { notifDot.setVisible(false); }

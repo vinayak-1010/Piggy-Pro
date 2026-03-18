@@ -2,6 +2,8 @@ package com.piggypro.controller;
 
 import com.piggypro.SceneManager;
 import com.piggypro.SessionManager;
+import com.piggypro.model.Expense;
+import com.piggypro.service.ExpenseService;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -23,7 +25,10 @@ import javafx.scene.shape.Circle;
 
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 /**
@@ -148,7 +153,47 @@ public class DashboardController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         loadIcons();
         setDateRange();
+        loadDashboardData();
         drawChartsAfterLayout();
+        // Set user info in topbar from session
+        if (SessionManager.isLoggedIn()) {
+            userDisplayName.setText(SessionManager.getUsername());
+            avatarInitials.setText(SessionManager.getInitials());
+        }
+    }
+
+    // ══════════════════════════════════════════════════
+    // LIVE DATA — from ExpenseService
+    // ══════════════════════════════════════════════════
+    private void loadDashboardData() {
+        if (!SessionManager.isLoggedIn()) return;
+        int userId = SessionManager.getUserId();
+        LocalDate today = LocalDate.now();
+        LocalDate monthStart = today.withDayOfMonth(1);
+
+        try {
+            ExpenseService svc = ExpenseService.getInstance();
+
+            double expenses = svc.getTotalExpenses(userId, monthStart, today);
+            double income   = svc.getTotalIncome(userId, monthStart, today);
+            double balance  = income - expenses;
+
+            valueBalance.setText("Rs. " + String.format("%,.0f", balance));
+            valueExpenses.setText("Rs. " + String.format("%,.0f", expenses));
+            valueSavings.setText("Rs. " + String.format("%,.0f", Math.max(balance, 0)));
+
+            // Top category
+            Map<String, Double> catTotals = svc.getCategoryTotals(userId, monthStart, today);
+            if (!catTotals.isEmpty()) {
+                String topCat = catTotals.entrySet().iterator().next().getKey();
+                double topAmt = catTotals.entrySet().iterator().next().getValue();
+                topCatValue.setText("Rs. " + String.format("%,.0f", topAmt));
+                topCatHint.setText(topCat + "  Last 30 days");
+            }
+
+        } catch (Exception e) {
+            System.out.println("Dashboard data load error: " + e.getMessage());
+        }
     }
 
     // ══════════════════════════════════════════════════
@@ -156,7 +201,7 @@ public class DashboardController implements Initializable {
     // ══════════════════════════════════════════════════
     private void loadIcons() {
         // Sidebar
-        setIcon(sidebarLogoIcon,   "logo.png");
+        setIcon(sidebarLogoIcon,   "piggy-bank.png");
         setIcon(iconOverview,      "grid.png");
         setIcon(iconTransactions,  "bookmark.png");
         setIcon(iconAnalytics,     "bar-chart.png");
@@ -171,8 +216,8 @@ public class DashboardController implements Initializable {
         setIcon(chevronIcon,       "chevron-down.png");
         setIcon(calendarIcon,      "calendar.png");
         // Chart more buttons
-        setIcon(moreIconSpending,  "more-h.png");
-        setIcon(moreIconCategory,  "more-h.png");
+        setIcon(moreIconSpending,  "more-horizontal.png");
+        setIcon(moreIconCategory,  "more-horizontal.png");
         // Transaction rows
         setIcon(txnIcon1,          "shopping-bag.png");
         setIcon(txnIcon2,          "credit-card.png");

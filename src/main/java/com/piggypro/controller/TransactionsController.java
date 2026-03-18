@@ -1,5 +1,10 @@
 package com.piggypro.controller;
 
+import com.piggypro.SceneManager;
+import com.piggypro.SessionManager;
+import com.piggypro.service.ExpenseService;
+import com.piggypro.service.CategoryService;
+
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
 import javafx.beans.property.SimpleStringProperty;
@@ -163,6 +168,10 @@ public class TransactionsController implements Initializable {
         setupTable();
         loadSampleData();
         applyFilters();
+        if (SessionManager.isLoggedIn()) {
+            userDisplayName.setText(SessionManager.getUsername());
+            avatarInitials.setText(SessionManager.getInitials());
+        }
     }
 
     // ══════════════════════════════════════════════
@@ -170,7 +179,7 @@ public class TransactionsController implements Initializable {
     // ══════════════════════════════════════════════
     private void loadIcons() {
         // Sidebar
-        setIcon(sidebarLogoIcon,  "logo.png");
+        setIcon(sidebarLogoIcon,  "piggy-bank.png");
         setIcon(iconOverview,     "grid.png");
         setIcon(iconTransactions, "bookmark.png");
         setIcon(iconAnalytics,    "bar-chart.png");
@@ -209,16 +218,20 @@ public class TransactionsController implements Initializable {
     private void setupFormCombos() {
         fieldType.setItems(FXCollections.observableArrayList("Expense", "Income"));
         fieldType.setValue("Expense");
-        fieldCategory.setItems(FXCollections.observableArrayList(CATEGORIES));
+        java.util.List<String> cats;
+        try { cats = CategoryService.getInstance().getAllNames(); }
+        catch (Exception e) { cats = CATEGORIES; }
+        fieldCategory.setItems(FXCollections.observableArrayList(cats));
         fieldCategory.setValue("Food and Dining");
         fieldDate.setValue(LocalDate.now());
     }
 
     private void setupFilterCombos() {
-        filterCategory.setItems(FXCollections.observableArrayList(
-                List.of("All Categories", "Food and Dining", "Shopping",
-                        "Transport", "Utilities", "Entertainment",
-                        "Rent", "Income", "Other")));
+        java.util.List<String> cats = new java.util.ArrayList<>();
+        cats.add("All Categories");
+        try { cats.addAll(CategoryService.getInstance().getAllNames()); }
+        catch (Exception e) { cats.addAll(java.util.List.of("Food and Dining","Shopping","Transport","Utilities","Entertainment","Rent","Income","Other")); }
+        filterCategory.setItems(FXCollections.observableArrayList(cats));
         filterCategory.setValue("All Categories");
 
         filterType.setItems(FXCollections.observableArrayList(
@@ -332,26 +345,28 @@ public class TransactionsController implements Initializable {
     }
 
     // ══════════════════════════════════════════════
-    // SAMPLE DATA
+    // LOAD DATA FROM DATABASE
     // ══════════════════════════════════════════════
     private void loadSampleData() {
-        allTransactions.addAll(
-                new Transaction("1","Salary Credit",      45000, "Income",  "Income",        LocalDate.of(2026,3,14), "Monthly salary"),
-                new Transaction("2","Amazon Shopping",     1240, "Expense", "Shopping",      LocalDate.of(2026,3,14), "Electronics accessories"),
-                new Transaction("3","Swiggy Order",         340, "Expense", "Food and Dining",LocalDate.of(2026,3,13),"Dinner for two"),
-                new Transaction("4","Phone Recharge",       399, "Expense", "Utilities",     LocalDate.of(2026,3,12), "Airtel prepaid 84-day"),
-                new Transaction("5","Uber Ride",            180, "Expense", "Transport",     LocalDate.of(2026,3,11), "Office commute"),
-                new Transaction("6","House Rent",          8500, "Expense", "Rent",          LocalDate.of(2026,3,10), "March rent payment"),
-                new Transaction("7","Netflix Subscription", 649, "Expense", "Entertainment", LocalDate.of(2026,3,9),  "Monthly plan"),
-                new Transaction("8","Zomato Order",         285, "Expense", "Food and Dining",LocalDate.of(2026,3,8), "Lunch delivery"),
-                new Transaction("9","Electricity Bill",    1100, "Expense", "Utilities",     LocalDate.of(2026,3,7),  "BSES March bill"),
-                new Transaction("10","Metro Card Recharge", 500, "Expense", "Transport",     LocalDate.of(2026,3,6),  "Monthly commute"),
-                new Transaction("11","Freelance Payment", 12000, "Income",  "Income",        LocalDate.of(2026,3,5),  "Website project"),
-                new Transaction("12","Grocery Shopping",   2100, "Expense", "Shopping",      LocalDate.of(2026,3,4),  "Weekly grocery run"),
-                new Transaction("13","Coffee Shop",         180, "Expense", "Food and Dining",LocalDate.of(2026,3,3), "Work meeting"),
-                new Transaction("14","Gym Membership",      800, "Expense", "Entertainment", LocalDate.of(2026,3,2),  "Monthly membership"),
-                new Transaction("15","Book Purchase",       450, "Expense", "Shopping",      LocalDate.of(2026,3,1),  "Clean Code by R.Martin")
-        );
+        if (!SessionManager.isLoggedIn()) return;
+        int userId = SessionManager.getUserId();
+        try {
+            java.util.List<com.piggypro.model.Expense> dbExpenses =
+                    ExpenseService.getInstance().getAllForUser(userId);
+            for (com.piggypro.model.Expense e : dbExpenses) {
+                allTransactions.add(new Transaction(
+                        String.valueOf(e.getId()),
+                        e.getDescription(),
+                        e.getAmount(),
+                        e.getType(),
+                        e.getCategory(),
+                        e.getDate(),
+                        e.getNote()
+                ));
+            }
+        } catch (Exception ex) {
+            System.out.println("TransactionsController load error: " + ex.getMessage());
+        }
     }
 
     // ══════════════════════════════════════════════
@@ -448,7 +463,12 @@ public class TransactionsController implements Initializable {
         }
 
         if (editMode && editingTx != null) {
-            // Update existing
+            // Update in DB
+            ExpenseService.ExpenseResult res = ExpenseService.getInstance()
+                    .updateExpense(SessionManager.getUserId(),
+                            Integer.parseInt(editingTx.getId()),
+                            desc, amount, type, cat, date, note);
+            if (!res.success()) { showFormError(res.message()); return; }
             editingTx.setDescription(desc);
             editingTx.setAmount(amount);
             editingTx.setType(type);
@@ -457,10 +477,13 @@ public class TransactionsController implements Initializable {
             editingTx.setNote(note);
             transactionTable.refresh();
         } else {
-            // Add new
-            String newId = String.valueOf(allTransactions.size() + 1);
-            allTransactions.add(0,
-                    new Transaction(newId, desc, amount, type, cat, date, note));
+            // Insert into DB
+            ExpenseService.ExpenseResult res = ExpenseService.getInstance()
+                    .addExpense(SessionManager.getUserId(), desc, amount, type, cat, date, note);
+            if (!res.success()) { showFormError(res.message()); return; }
+            allTransactions.add(0, new Transaction(
+                    String.valueOf(res.expense().getId()),
+                    desc, amount, type, cat, date, note));
         }
 
         animateSaveSuccess();
@@ -499,6 +522,14 @@ public class TransactionsController implements Initializable {
     // DELETE
     // ══════════════════════════════════════════════
     private void deleteTransaction(Transaction tx) {
+        if (SessionManager.isLoggedIn()) {
+            try {
+                ExpenseService.getInstance().deleteExpense(
+                        SessionManager.getUserId(), Integer.parseInt(tx.getId()));
+            } catch (Exception e) {
+                System.out.println("Delete error: " + e.getMessage());
+            }
+        }
         allTransactions.remove(tx);
         applyFilters();
     }
@@ -731,11 +762,26 @@ public class TransactionsController implements Initializable {
     // ══════════════════════════════════════════════
     // NAV HANDLERS
     // ══════════════════════════════════════════════
-    @FXML private void handleNavOverview()     { setActiveNav(navOverview); }
-    @FXML private void handleNavTransactions() { setActiveNav(navTransactions); }
-    @FXML private void handleNavAnalytics()    { setActiveNav(navAnalytics); }
-    @FXML private void handleNavBudgets()      { setActiveNav(navBudgets); }
-    @FXML private void handleNavReports()      { setActiveNav(navReports); }
+    @FXML private void handleNavOverview()     {
+        SceneManager.navigateTo(SceneManager.Screen.DASHBOARD);
+        setActiveNav(navOverview);
+    }
+    @FXML private void handleNavTransactions() {
+        SceneManager.navigateTo(SceneManager.Screen.TRANSACTIONS);
+        setActiveNav(navTransactions);
+    }
+    @FXML private void handleNavAnalytics()    {
+        SceneManager.navigateTo(SceneManager.Screen.ANALYTICS);
+        setActiveNav(navAnalytics);
+    }
+    @FXML private void handleNavBudgets()      {
+        SceneManager.navigateTo(SceneManager.Screen.BUDGETS);
+        setActiveNav(navBudgets);
+    }
+    @FXML private void handleNavReports()      {
+        SceneManager.navigateTo(SceneManager.Screen.REPORTS);
+        setActiveNav(navReports);
+    }
     @FXML private void handleNavSettings()     { setActiveNav(navSettings); }
     @FXML private void handleNavHelp()         { setActiveNav(navHelp); }
     @FXML private void handleNotifications()   { notifDot.setVisible(false); }

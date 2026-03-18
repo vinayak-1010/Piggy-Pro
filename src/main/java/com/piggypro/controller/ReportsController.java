@@ -1,5 +1,9 @@
 package com.piggypro.controller;
 
+import com.piggypro.SceneManager;
+import com.piggypro.SessionManager;
+import com.piggypro.service.ExpenseService;
+
 import javafx.animation.PauseTransition;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -180,16 +184,20 @@ public class ReportsController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         loadIcons();
         setupFilters();
-        buildCategoryTable();    // default view
+        buildCategoryTable();
         updateSummaryChips();
         buildRecentExports();
+        if (SessionManager.isLoggedIn()) {
+            userDisplayName.setText(SessionManager.getUsername());
+            avatarInitials.setText(SessionManager.getInitials());
+        }
     }
 
     // ══════════════════════════════════════════════
     // ICONS
     // ══════════════════════════════════════════════
     private void loadIcons() {
-        setIcon(sidebarLogoIcon,  "logo.png");
+        setIcon(sidebarLogoIcon,  "piggy-bank.png");
         setIcon(iconOverview,     "grid.png");
         setIcon(iconTransactions, "bookmark.png");
         setIcon(iconAnalytics,    "bar-chart.png");
@@ -203,7 +211,7 @@ public class ReportsController implements Initializable {
         setIcon(chevronIcon,      "chevron-down.png");
         setIcon(generateIcon,     "refresh-cw.png");
         setIcon(pdfFormatIcon,    "file-text.png");
-        setIcon(excelFormatIcon,  "table.png");
+        setIcon(excelFormatIcon,  "table-2.png");
         setIcon(downloadIcon,     "download.png");
     }
 
@@ -445,18 +453,32 @@ public class ReportsController implements Initializable {
     // SUMMARY CHIPS
     // ══════════════════════════════════════════════
     private void updateSummaryChips() {
-        double expenses = CATEGORY_DATA.stream()
-                .mapToDouble(CategoryRow::total).sum();
-        double income   = TXN_DATA.stream()
-                .filter(t -> "Income".equals(t.type()))
-                .mapToDouble(TxnRow::amount).sum();
-        double net      = income - expenses;
-        int    count    = TXN_DATA.size();
-
+        if (SessionManager.isLoggedIn()) {
+            try {
+                int userId = SessionManager.getUserId();
+                LocalDate to   = filterDateTo.getValue()   != null ? filterDateTo.getValue()   : LocalDate.now();
+                LocalDate from = filterDateFrom.getValue() != null ? filterDateFrom.getValue() : to.withDayOfMonth(1);
+                ExpenseService svc = ExpenseService.getInstance();
+                double expenses = svc.getTotalExpenses(userId, from, to);
+                double income   = svc.getTotalIncome(userId, from, to);
+                double net      = income - expenses;
+                int    count    = svc.getFiltered(userId, from, to, null, null, null, null, null).size();
+                chipExpenses.setText("Rs. " + fmt(expenses));
+                chipIncome.setText("Rs. "   + fmt(income));
+                chipNet.setText("Rs. "      + fmt(net));
+                chipCount.setText(String.valueOf(count));
+                return;
+            } catch (Exception e) {
+                System.out.println("Reports chips error: " + e.getMessage());
+            }
+        }
+        // Fallback to sample data
+        double expenses = CATEGORY_DATA.stream().mapToDouble(CategoryRow::total).sum();
+        double income   = TXN_DATA.stream().filter(t -> "Income".equals(t.type())).mapToDouble(TxnRow::amount).sum();
         chipExpenses.setText("Rs. " + fmt(expenses));
         chipIncome.setText("Rs. "   + fmt(income));
-        chipNet.setText("Rs. "      + fmt(net));
-        chipCount.setText(String.valueOf(count));
+        chipNet.setText("Rs. "      + fmt(income - expenses));
+        chipCount.setText(String.valueOf(TXN_DATA.size()));
     }
 
     // ══════════════════════════════════════════════
@@ -593,11 +615,26 @@ public class ReportsController implements Initializable {
     // ══════════════════════════════════════════════
     // NAV + MISC HANDLERS
     // ══════════════════════════════════════════════
-    @FXML private void handleNavOverview()     { setActiveNav(navOverview); }
-    @FXML private void handleNavTransactions() { setActiveNav(navTransactions); }
-    @FXML private void handleNavAnalytics()    { setActiveNav(navAnalytics); }
-    @FXML private void handleNavBudgets()      { setActiveNav(navBudgets); }
-    @FXML private void handleNavReports()      { setActiveNav(navReports); }
+    @FXML private void handleNavOverview()     {
+        SceneManager.navigateTo(SceneManager.Screen.DASHBOARD);
+        setActiveNav(navOverview);
+    }
+    @FXML private void handleNavTransactions() {
+        SceneManager.navigateTo(SceneManager.Screen.TRANSACTIONS);
+        setActiveNav(navTransactions);
+    }
+    @FXML private void handleNavAnalytics()    {
+        SceneManager.navigateTo(SceneManager.Screen.ANALYTICS);
+        setActiveNav(navAnalytics);
+    }
+    @FXML private void handleNavBudgets()      {
+        SceneManager.navigateTo(SceneManager.Screen.BUDGETS);
+        setActiveNav(navBudgets);
+    }
+    @FXML private void handleNavReports()      {
+        SceneManager.navigateTo(SceneManager.Screen.REPORTS);
+        setActiveNav(navReports);
+    }
     @FXML private void handleNavSettings()     { setActiveNav(navSettings); }
     @FXML private void handleNavHelp()         { setActiveNav(navHelp); }
     @FXML private void handleNotifications()   { notifDot.setVisible(false); }
