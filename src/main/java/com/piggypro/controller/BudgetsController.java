@@ -3,6 +3,8 @@ package com.piggypro.controller;
 import com.piggypro.SceneManager;
 import com.piggypro.SessionManager;
 import com.piggypro.service.ExpenseService;
+import com.piggypro.service.BudgetService;
+import com.piggypro.dao.BudgetDAO;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
@@ -160,27 +162,27 @@ public class BudgetsController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         loadIcons();
         setupFormCombos();
-        loadSampleData();
-        loadRealSpentAmounts();
-        refreshView();
         if (SessionManager.isLoggedIn()) {
             userDisplayName.setText(SessionManager.getUsername());
             avatarInitials.setText(SessionManager.getInitials());
         }
+        refreshView();
     }
 
-    // Load real spent amounts from DB and update budget objects
-    private void loadRealSpentAmounts() {
+    // Load budgets from DB and populate real spent amounts
+    private void loadBudgetsFromDB() {
         if (!SessionManager.isLoggedIn()) return;
         int userId = SessionManager.getUserId();
-        for (Budget b : allBudgets) {
-            try {
-                double spent = ExpenseService.getInstance()
-                        .getSpentInCategory(userId, b.category, b.month);
-                b.spent = spent;
-            } catch (Exception e) {
-                System.out.println("Budget spent load error: " + e.getMessage());
-            }
+        allBudgets.clear();
+        List<BudgetDAO.Budget> dbBudgets =
+                BudgetService.getInstance().getBudgetsForMonth(userId, displayMonth);
+        for (BudgetDAO.Budget db : dbBudgets) {
+            double spent = ExpenseService.getInstance()
+                    .getSpentInCategory(userId, db.category,
+                            YearMonth.parse(db.month));
+            allBudgets.add(new Budget(
+                    String.valueOf(db.id), db.category, db.limit, spent,
+                    YearMonth.parse(db.month)));
         }
     }
 
@@ -191,11 +193,11 @@ public class BudgetsController implements Initializable {
         setIcon(sidebarLogoIcon,  "piggy-bank.png");
         setIcon(iconOverview,     "grid.png");
         setIcon(iconTransactions, "bookmark.png");
-        setIcon(iconAnalytics,    "bar-chart.png");
+        setIcon(iconAnalytics,    "chart-bar-big.png");
         setIcon(iconBudgets,      "clock.png");
         setIcon(iconReports,      "file-text.png");
         setIcon(iconSettings,     "settings.png");
-        setIcon(iconHelp,         "help-circle.png");
+        setIcon(iconHelp,         "circle-question-mark.png");
         setIcon(iconExport,       "zap.png");
         setIcon(searchIcon,       "search.png");
         setIcon(notifIcon,        "bell.png");
@@ -234,27 +236,16 @@ public class BudgetsController implements Initializable {
         fieldMonth.setValue(YearMonth.now().format(MONTH_FMT));
     }
 
-    private void loadSampleData() {
-        YearMonth cur = YearMonth.now();
-        allBudgets.addAll(List.of(
-                new Budget("1", "Food and Dining", 6000,  4820, cur),
-                new Budget("2", "Shopping",        5000,  5400, cur),  // over
-                new Budget("3", "Transport",       3000,  1200, cur),
-                new Budget("4", "Utilities",       2500,  1600, cur),
-                new Budget("5", "Entertainment",   2000,   800, cur),
-                new Budget("6", "Rent",            9000,  8500, cur)
-        ));
-    }
+
 
     // ══════════════════════════════════════════════
     // REFRESH VIEW
     // ══════════════════════════════════════════════
     private void refreshView() {
+        loadBudgetsFromDB();
         monthNameLabel.setText(displayMonth.format(MONTH_FMT));
 
-        List<Budget> forMonth = allBudgets.stream()
-                .filter(b -> b.month.equals(displayMonth))
-                .toList();
+        List<Budget> forMonth = new java.util.ArrayList<>(allBudgets);
 
         double totalBudget = forMonth.stream().mapToDouble(b -> b.limit).sum();
         double totalSpent  = forMonth.stream().mapToDouble(b -> b.spent).sum();
@@ -515,20 +506,13 @@ public class BudgetsController implements Initializable {
             return;
         }
 
-        if (editMode && editingBudget != null) {
-            editingBudget.category = cat;
-            editingBudget.limit    = limit;
-            editingBudget.month    = month;
-        } else {
-            // Check if budget already exists for this category+month
-            boolean exists = allBudgets.stream()
-                    .anyMatch(b -> b.category.equals(cat) && b.month.equals(month));
-            if (exists) {
-                showFormError("A budget for " + cat + " in " + monthStr + " already exists.");
-                return;
-            }
-            String id = String.valueOf(allBudgets.size() + 1);
-            allBudgets.add(new Budget(id, cat, limit, 0, month));
+        if (!SessionManager.isLoggedIn()) return;
+        int userId = SessionManager.getUserId();
+        BudgetService.BudgetResult result =
+                BudgetService.getInstance().setBudget(userId, cat, limit, month);
+        if (!result.success()) {
+            showFormError(result.message());
+            return;
         }
 
         animateSaveSuccess();
@@ -558,7 +542,14 @@ public class BudgetsController implements Initializable {
     // DELETE
     // ══════════════════════════════════════════════
     private void deleteBudget(Budget b) {
-        allBudgets.remove(b);
+        if (SessionManager.isLoggedIn()) {
+            try {
+                int id = Integer.parseInt(b.id);
+                BudgetService.getInstance().deleteBudget(id, SessionManager.getUserId());
+            } catch (Exception e) {
+                System.out.println("Budget delete error: " + e.getMessage());
+            }
+        }
         refreshView();
     }
 

@@ -180,13 +180,13 @@ public class TransactionsController implements Initializable {
     private void loadIcons() {
         // Sidebar
         setIcon(sidebarLogoIcon,  "piggy-bank.png");
-        setIcon(iconOverview,     "grid.png");
+        setIcon(iconOverview,     "grid-2x2.png");
         setIcon(iconTransactions, "bookmark.png");
-        setIcon(iconAnalytics,    "bar-chart.png");
+        setIcon(iconAnalytics,    "chart-bar-big.png");
         setIcon(iconBudgets,      "clock.png");
         setIcon(iconReports,      "file-text.png");
         setIcon(iconSettings,     "settings.png");
-        setIcon(iconHelp,         "help-circle.png");
+        setIcon(iconHelp,         "circle-question-mark.png");
         setIcon(iconExport,       "zap.png");
         // Topbar
         setIcon(searchIcon,       "search.png");

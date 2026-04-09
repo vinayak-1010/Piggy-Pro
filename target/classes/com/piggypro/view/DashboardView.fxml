@@ -251,8 +251,8 @@
 
                             <!-- Spending Overview chart card -->
                             <VBox styleClass="dash-card" spacing="0.0"
-                                  HBox.hgrow="ALWAYS"
-                                  padding="16 18 14 18">
+                                  HBox.hgrow="ALWAYS">
+                                <padding><Insets top="16.0" right="18.0" bottom="14.0" left="18.0"/></padding>
                                 <HBox alignment="CENTER_LEFT" spacing="8.0">
                                     <Label styleClass="card-title"
                                            text="Spending Overview"
@@ -280,8 +280,8 @@
 
                             <!-- Top Category bar card -->
                             <VBox styleClass="dash-card" spacing="0.0"
-                                  prefWidth="200.0" minWidth="180.0"
-                                  padding="16 18 14 18">
+                                  prefWidth="200.0" minWidth="180.0">
+                                <padding><Insets top="16.0" right="18.0" bottom="14.0" left="18.0"/></padding>
                                 <HBox alignment="CENTER_LEFT">
                                     <Label styleClass="card-title"
                                            text="Top Category"
@@ -321,8 +321,8 @@
 
                             <!-- Recent Transactions -->
                             <VBox styleClass="dash-card" spacing="0.0"
-                                  HBox.hgrow="ALWAYS"
-                                  padding="16 18 14 18">
+                                  HBox.hgrow="ALWAYS">
+                                <padding><Insets top="16.0" right="18.0" bottom="14.0" left="18.0"/></padding>
                                 <HBox alignment="CENTER_LEFT">
                                     <Label styleClass="card-title"
                                            text="Recent Transactions"
@@ -333,72 +333,64 @@
                                 </HBox>
                                 <Region prefHeight="4.0"/>
 
-                                <!-- Row 1 — Shopping -->
-                                <HBox styleClass="txn-row" alignment="CENTER_LEFT" spacing="10.0">
-                                    <StackPane styleClass="txn-icon-box,txn-icon-blue">
-                                        <ImageView fx:id="txnIcon1"
-                                                   fitWidth="14.0" fitHeight="14.0"
-                                                   preserveRatio="true"/>
+                                <!-- Row 1 -->
+                                <HBox fx:id="txnRow1" styleClass="txn-row" alignment="CENTER_LEFT" spacing="10.0">
+                                    <StackPane fx:id="txnIconBox1" styleClass="txn-icon-box,txn-icon-blue">
+                                        <ImageView fx:id="txnIcon1" fitWidth="14.0" fitHeight="14.0" preserveRatio="true"/>
                                     </StackPane>
                                     <VBox spacing="1.0" HBox.hgrow="ALWAYS">
-                                        <Label styleClass="txn-name"  text="Amazon Shopping"/>
-                                        <Label styleClass="txn-category" text="Shopping"/>
+                                        <Label fx:id="txnName1"     styleClass="txn-name"     text=""/>
+                                        <Label fx:id="txnCategory1" styleClass="txn-category" text=""/>
                                     </VBox>
-                                    <Label styleClass="txn-date" text="Today, 2:30 PM"/>
-                                    <Label styleClass="txn-amount-neg" text="-Rs.1,240"/>
+                                    <Label fx:id="txnDate1"   styleClass="txn-date"       text=""/>
+                                    <Label fx:id="txnAmount1" styleClass="txn-amount-neg" text=""/>
                                 </HBox>
 
-                                <!-- Row 2 — Income -->
-                                <HBox styleClass="txn-row" alignment="CENTER_LEFT" spacing="10.0">
-                                    <StackPane styleClass="txn-icon-box,txn-icon-green">
-                                        <ImageView fx:id="txnIcon2"
-                                                   fitWidth="14.0" fitHeight="14.0"
-                                                   preserveRatio="true"/>
+                                <!-- Row 2 -->
+                                <HBox fx:id="txnRow2" styleClass="txn-row" alignment="CENTER_LEFT" spacing="10.0">
+                                    <StackPane fx:id="txnIconBox2" styleClass="txn-icon-box,txn-icon-green">
+                                        <ImageView fx:id="txnIcon2" fitWidth="14.0" fitHeight="14.0" preserveRatio="true"/>
                                     </StackPane>
                                     <VBox spacing="1.0" HBox.hgrow="ALWAYS">
-                                        <Label styleClass="txn-name"  text="Salary Credit"/>
-                                        <Label styleClass="txn-category" text="Income"/>
+                                        <Label fx:id="txnName2"     styleClass="txn-name"     text=""/>
+                                        <Label fx:id="txnCategory2" styleClass="txn-category" text=""/>
                                     </VBox>
-                                    <Label styleClass="txn-date" text="Today, 9:00 AM"/>
-                                    <Label styleClass="txn-amount-pos" text="+Rs.45,000"/>
+                                    <Label fx:id="txnDate2"   styleClass="txn-date"       text=""/>
+                                    <Label fx:id="txnAmount2" styleClass="txn-amount-neg" text=""/>
                                 </HBox>
 
-                                <!-- Row 3 — Food -->
-                                <HBox styleClass="txn-row" alignment="CENTER_LEFT" spacing="10.0">
-                                    <StackPane styleClass="txn-icon-box,txn-icon-amber">
-                                        <ImageView fx:id="txnIcon3"
-                                                   fitWidth="14.0" fitHeight="14.0"
-                                                   preserveRatio="true"/>
+                                <!-- Row 3 -->
+                                <HBox fx:id="txnRow3" styleClass="txn-row" alignment="CENTER_LEFT" spacing="10.0">
+                                    <StackPane fx:id="txnIconBox3" styleClass="txn-icon-box,txn-icon-amber">
+                                        <ImageView fx:id="txnIcon3" fitWidth="14.0" fitHeight="14.0" preserveRatio="true"/>
                                     </StackPane>
                                     <VBox spacing="1.0" HBox.hgrow="ALWAYS">
-                                        <Label styleClass="txn-name"  text="Swiggy Order"/>
-                                        <Label styleClass="txn-category" text="Food and Dining"/>
+                                        <Label fx:id="txnName3"     styleClass="txn-name"     text=""/>
+                                        <Label fx:id="txnCategory3" styleClass="txn-category" text=""/>
                                     </VBox>
-                                    <Label styleClass="txn-date" text="Yesterday"/>
-                                    <Label styleClass="txn-amount-neg" text="-Rs.340"/>
+                                    <Label fx:id="txnDate3"   styleClass="txn-date"       text=""/>
+                                    <Label fx:id="txnAmount3" styleClass="txn-amount-neg" text=""/>
                                 </HBox>
 
-                                <!-- Row 4 — Utilities -->
-                                <HBox styleClass="txn-row" alignment="CENTER_LEFT" spacing="10.0">
-                                    <StackPane styleClass="txn-icon-box,txn-icon-red">
-                                        <ImageView fx:id="txnIcon4"
-                                                   fitWidth="14.0" fitHeight="14.0"
-                                                   preserveRatio="true"/>
+                                <!-- Row 4 -->
+                                <HBox fx:id="txnRow4" styleClass="txn-row" alignment="CENTER_LEFT" spacing="10.0">
+                                    <StackPane fx:id="txnIconBox4" styleClass="txn-icon-box,txn-icon-red">
+                                        <ImageView fx:id="txnIcon4" fitWidth="14.0" fitHeight="14.0" preserveRatio="true"/>
                                     </StackPane>
                                     <VBox spacing="1.0" HBox.hgrow="ALWAYS">
-                                        <Label styleClass="txn-name"  text="Phone Recharge"/>
-                                        <Label styleClass="txn-category" text="Utilities"/>
+                                        <Label fx:id="txnName4"     styleClass="txn-name"     text=""/>
+                                        <Label fx:id="txnCategory4" styleClass="txn-category" text=""/>
                                     </VBox>
-                                    <Label styleClass="txn-date" text="5 Mar"/>
-                                    <Label styleClass="txn-amount-neg" text="-Rs.399"/>
+                                    <Label fx:id="txnDate4"   styleClass="txn-date"       text=""/>
+                                    <Label fx:id="txnAmount4" styleClass="txn-amount-neg" text=""/>
                                 </HBox>
 
                             </VBox>
 
                             <!-- Budget Progress -->
                             <VBox styleClass="dash-card" spacing="0.0"
-                                  prefWidth="280.0" minWidth="240.0"
-                                  padding="16 18 14 18">
+                                  prefWidth="280.0" minWidth="240.0">
+                                <padding><Insets top="16.0" right="18.0" bottom="14.0" left="18.0"/></padding>
                                 <HBox alignment="CENTER_LEFT">
                                     <Label styleClass="card-title"
                                            text="Budget Progress"

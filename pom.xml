@@ -13,7 +13,7 @@
   <name>Piggy Pro</name>
   <description>Personal Expense Tracker — JavaFX 21 + SQLite</description>
 
-  <!-- ═══════════════════════════════════════════
+  <!-- ════════════════════════════════════════════
        PROPERTIES
   ════════════════════════════════════════════ -->
   <properties>
@@ -24,7 +24,7 @@
     <main.class>com.piggypro.Main</main.class>
   </properties>
 
-  <!-- ═══════════════════════════════════════════
+  <!-- ════════════════════════════════════════════
        DEPENDENCIES
   ════════════════════════════════════════════ -->
   <dependencies>
@@ -74,32 +74,23 @@
       <version>5.2.5</version>
     </dependency>
 
-    <!-- ── SLF4J simple logger ───────────────── -->
-    <!-- Required by Apache POI at runtime -->
+    <!-- ── SLF4J (required by Apache POI) ───── -->
+    <!-- Use 1.7.x to match POI's internal SLF4J API version -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
-      <version>2.0.12</version>
-    </dependency>
-
-    <!-- ── JUnit 5 (unit testing) ────────────── -->
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <version>5.10.2</version>
-      <scope>test</scope>
+      <version>1.7.36</version>
     </dependency>
 
   </dependencies>
 
-  <!-- ═══════════════════════════════════════════
+  <!-- ════════════════════════════════════════════
        BUILD
   ════════════════════════════════════════════ -->
   <build>
     <plugins>
 
-      <!-- ── Maven Compiler ───────────────── -->
-      <!-- Explicitly set Java 21 + enable text blocks & records -->
+      <!-- ── Maven Compiler (Java 21) ─────── -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -112,29 +103,30 @@
       </plugin>
 
       <!-- ── JavaFX Maven Plugin ──────────── -->
-      <!-- Run with: mvn javafx:run                     -->
-      <!-- Or use IntelliJ Run button after configuring -->
+      <!-- HOW TO RUN: Maven panel → Plugins → javafx → javafx:run -->
       <plugin>
         <groupId>org.openjfx</groupId>
         <artifactId>javafx-maven-plugin</artifactId>
         <version>0.0.8</version>
         <configuration>
           <mainClass>${main.class}</mainClass>
-          <!-- Needed if you add module-info.java later -->
-          <!-- <launcher>piggypro</launcher> -->
         </configuration>
       </plugin>
 
-      <!-- ── Maven Surefire (run JUnit tests) ── -->
+      <!-- ── Surefire: skip all tests ─────── -->
+      <!-- No test files in this project       -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.2.5</version>
+        <configuration>
+          <skipTests>true</skipTests>
+        </configuration>
       </plugin>
 
     </plugins>
 
-    <!-- Ensure resources (FXML, CSS, images) are copied to output -->
+    <!-- Resources: FXML, CSS, images copied to build output -->
     <resources>
       <resource>
         <directory>src/main/resources</directory>

@@ -108,22 +108,9 @@ public class AnalyticsController implements Initializable {
             Color.web("#EF4444"), Color.web("#10B981"), Color.web("#E2E8F0")
     };
 
-    // ── Sample data: category → amount ─────────────
-    private static final Map<String, Double> CATEGORY_DATA = new LinkedHashMap<>() {{
-        put("Food and Dining", 4820.0);
-        put("Shopping",        2490.0);
-        put("Rent",            1800.0);
-        put("Utilities",       1340.0);
-        put("Transport",       1030.0);
-        put("Other",            950.0);
-    }};
-
-    // ── Sample monthly data ─────────────────────────
-    // Key = month index (0=Jan), value = amount
-    private static final double[] MONTHLY = {
-            11200, 9800, 13400, 10600, 12100, 8900,
-            14200, 11800, 10200, 9600, 11000, 12430
-    };
+    // ── Live data (populated from DB) ──────────────
+    private Map<String, Double> liveCategoryData = new LinkedHashMap<>();
+    private Map<String, Double> liveMonthlyData  = new LinkedHashMap<>();
 
     // ── Active date range ──────────────────────────
     private LocalDate activeFrom;
@@ -152,19 +139,19 @@ public class AnalyticsController implements Initializable {
         setIcon(sidebarLogoIcon,  "piggy-bank.png");
         setIcon(iconOverview,     "grid.png");
         setIcon(iconTransactions, "bookmark.png");
-        setIcon(iconAnalytics,    "bar-chart.png");
+        setIcon(iconAnalytics,    "chart-bar-big.png");
         setIcon(iconBudgets,      "clock.png");
         setIcon(iconReports,      "file-text.png");
         setIcon(iconSettings,     "settings.png");
-        setIcon(iconHelp,         "help-circle.png");
+        setIcon(iconHelp,         "circle-question-mark.png");
         setIcon(iconExport,       "zap.png");
         setIcon(searchIcon,       "search.png");
         setIcon(notifIcon,        "bell.png");
         setIcon(chevronIcon,      "chevron-down.png");
-        setIcon(moreIconDonut,    "more-horizontal.png");
-        setIcon(moreIconBar,      "more-horizontal.png");
-        setIcon(iconStatSpent,    "dollar-sign.png");
-        setIcon(iconStatTop,      "star.png");
+        setIcon(moreIconDonut,    "move-horizontal.png");
+        setIcon(moreIconBar,      "move-horizontal.png");
+        setIcon(iconStatSpent,    "dollar-sign (1).png");
+        setIcon(iconStatTop,      "star (1).png");
         setIcon(iconStatAvg,      "calendar.png");
         setIcon(iconStatCount,    "list.png");
     }
@@ -183,45 +170,40 @@ public class AnalyticsController implements Initializable {
     // ══════════════════════════════════════════════
     // STATS
     // ══════════════════════════════════════════════
+    private void loadLiveData() {
+        if (!SessionManager.isLoggedIn()) return;
+        int userId = SessionManager.getUserId();
+        ExpenseService svc = ExpenseService.getInstance();
+        liveCategoryData = svc.getCategoryTotals(userId, activeFrom, activeTo);
+        liveMonthlyData  = svc.getMonthlyTotals(userId, 6);
+    }
+
     private void refreshStats() {
-        // Use real DB data if user is logged in, otherwise fall back to sample data
-        if (SessionManager.isLoggedIn()) {
-            try {
-                int userId = SessionManager.getUserId();
-                ExpenseService svc = ExpenseService.getInstance();
-                double expenses = svc.getTotalExpenses(userId, activeFrom, activeTo);
-                double income   = svc.getTotalIncome(userId, activeFrom, activeTo);
-                java.util.Map<String, Double> cats = svc.getCategoryTotals(userId, activeFrom, activeTo);
-                long days = Math.max(1, java.time.temporal.ChronoUnit.DAYS.between(activeFrom, activeTo) + 1);
-                String topCat = cats.isEmpty() ? "—" : cats.keySet().iterator().next();
-                double topAmt = cats.isEmpty() ? 0 : cats.values().iterator().next();
-                statTotalSpent.setText("Rs. " + String.format("%,.0f", expenses));
-                statSpentSub.setText("From " + activeFrom + " to " + activeTo);
-                statTopCategory.setText(topCat.split(" ")[0]);
-                statTopCatSub.setText("Rs. " + String.format("%,.0f", topAmt) + " spent");
-                statAvgDay.setText("Rs. " + String.format("%,.0f", expenses / days));
-                donutCenterValue.setText("Rs." + String.format("%,.0f", expenses / 1000) + "K");
-                return;
-            } catch (Exception e) {
-                System.out.println("Analytics data error: " + e.getMessage());
-            }
-        }
-        double total   = CATEGORY_DATA.values().stream().mapToDouble(Double::doubleValue).sum();
+        loadLiveData();
+        double total   = liveCategoryData.values().stream().mapToDouble(Double::doubleValue).sum();
         long   days    = Math.max(1,
                 java.time.temporal.ChronoUnit.DAYS.between(activeFrom, activeTo) + 1);
         double avgDay  = total / days;
 
-        String topCat  = CATEGORY_DATA.entrySet().stream()
+        String topCat  = liveCategoryData.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey).orElse("—");
-        double topAmt  = CATEGORY_DATA.getOrDefault(topCat, 0.0);
+        double topAmt  = liveCategoryData.getOrDefault(topCat, 0.0);
+
+        // Real transaction count for the period
+        int txnCount = 0;
+        if (SessionManager.isLoggedIn()) {
+            txnCount = ExpenseService.getInstance()
+                    .getFiltered(SessionManager.getUserId(), activeFrom, activeTo,
+                            null, null, null, null, null).size();
+        }
 
         statTotalSpent.setText("Rs. " + String.format("%,.0f", total));
         statSpentSub.setText("From " + activeFrom + " to " + activeTo);
-        statTopCategory.setText(topCat.split(" ")[0]);   // e.g. "Food"
+        statTopCategory.setText(topCat.split(" ")[0]);
         statTopCatSub.setText("Rs. " + String.format("%,.0f", topAmt) + " spent");
         statAvgDay.setText("Rs. " + String.format("%,.0f", avgDay));
-        statTxnCount.setText("15");  // replace with real DB count
+        statTxnCount.setText(String.valueOf(txnCount));
         donutCenterValue.setText("Rs." + String.format("%,.0f", total / 1000) + "K");
     }
 
@@ -249,11 +231,14 @@ public class AnalyticsController implements Initializable {
         double innerR = size * 0.28;
         double strokeW = outerR - innerR;
 
-        double total = CATEGORY_DATA.values().stream().mapToDouble(Double::doubleValue).sum();
-        double startAngle = -90.0;   // start from top
+        double total = liveCategoryData.values().stream().mapToDouble(Double::doubleValue).sum();
+        if (total == 0) { replaceRegionWithCanvas(region, c); return; }
+        double startAngle = -90.0;
 
         int i = 0;
-        for (Map.Entry<String, Double> entry : CATEGORY_DATA.entrySet()) {
+        Map<String, Double> chartData = liveCategoryData.isEmpty()
+                ? new LinkedHashMap<>() : liveCategoryData;
+        for (Map.Entry<String, Double> entry : chartData.entrySet()) {
             double sweep = (entry.getValue() / total) * 360.0;
             Color col = PALETTE[Math.min(i, PALETTE.length - 1)];
 
@@ -304,7 +289,10 @@ public class AnalyticsController implements Initializable {
             monthIdxs[i]  = m.getMonthValue() - 1;
             monthLabels[i] = m.getMonth()
                     .getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
-            values[i] = MONTHLY[monthIdxs[i]];
+            // Build YYYY-MM key to look up in live data
+            String key = String.format("%04d-%02d",
+                    m.getYear(), m.getMonthValue());
+            values[i] = liveMonthlyData.getOrDefault(key, 0.0);
         }
 
         double maxVal = 0;
@@ -367,7 +355,9 @@ public class AnalyticsController implements Initializable {
     private void buildLegend(double total) {
         legendBox.getChildren().clear();
         int i = 0;
-        for (Map.Entry<String, Double> entry : CATEGORY_DATA.entrySet()) {
+        Map<String, Double> chartData = liveCategoryData.isEmpty()
+                ? new LinkedHashMap<>() : liveCategoryData;
+        for (Map.Entry<String, Double> entry : chartData.entrySet()) {
             double pct = (entry.getValue() / total) * 100;
             Color col  = PALETTE[Math.min(i, PALETTE.length - 1)];
 
@@ -464,6 +454,7 @@ public class AnalyticsController implements Initializable {
                 presets.get(i).getStyleClass().add("active");
         }
         refreshStats();
+        rebuildCharts();
     }
 
     @FXML
@@ -476,14 +467,21 @@ public class AnalyticsController implements Initializable {
         if (dateFrom.getValue() != null) activeFrom = dateFrom.getValue();
         if (dateTo.getValue()   != null) activeTo   = dateTo.getValue();
         refreshStats();
-        // TODO: filter real data by activeFrom / activeTo and redraw charts
+        rebuildCharts();
     }
 
     // ══════════════════════════════════════════════
     // MISC HANDLERS
     // ══════════════════════════════════════════════
-    @FXML private void handleMoreDonut() { /* TODO: export / detail view */ }
-    @FXML private void handleMoreBar()   { /* TODO: export / detail view */ }
+    private void rebuildCharts() {
+        if (donutChartArea.getParent() != null)
+            drawDonutChart(donutChartArea);
+        if (barChartArea.getParent() != null)
+            drawBarChart(barChartArea);
+    }
+
+    @FXML private void handleMoreDonut() { /* no-op */ }
+    @FXML private void handleMoreBar()   { /* no-op */ }
     @FXML private void handleNotifications() { notifDot.setVisible(false); }
     @FXML private void handleExport()    { /* TODO: ExportService */ }
 

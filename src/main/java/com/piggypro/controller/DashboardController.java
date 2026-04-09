@@ -132,11 +132,14 @@ public class DashboardController implements Initializable {
     @FXML private Label topCatBadge;
     @FXML private Label topCatHint;
 
-    /* ── Transaction icons ── */
-    @FXML private ImageView txnIcon1;
-    @FXML private ImageView txnIcon2;
-    @FXML private ImageView txnIcon3;
-    @FXML private ImageView txnIcon4;
+    /* ── Transaction rows ── */
+    @FXML private javafx.scene.layout.HBox    txnRow1, txnRow2, txnRow3, txnRow4;
+    @FXML private javafx.scene.layout.StackPane txnIconBox1, txnIconBox2, txnIconBox3, txnIconBox4;
+    @FXML private ImageView txnIcon1, txnIcon2, txnIcon3, txnIcon4;
+    @FXML private Label txnName1, txnName2, txnName3, txnName4;
+    @FXML private Label txnCategory1, txnCategory2, txnCategory3, txnCategory4;
+    @FXML private Label txnDate1, txnDate2, txnDate3, txnDate4;
+    @FXML private Label txnAmount1, txnAmount2, txnAmount3, txnAmount4;
 
     /* ── Budget progress bars ── */
     @FXML private Region budgetBarFood;
@@ -191,8 +194,45 @@ public class DashboardController implements Initializable {
                 topCatHint.setText(topCat + "  Last 30 days");
             }
 
+            // Recent transactions — last 4
+            java.util.List<com.piggypro.model.Expense> recent =
+                    svc.getRecent(userId, 4);
+            populateRecentTxns(recent);
+
         } catch (Exception e) {
             System.out.println("Dashboard data load error: " + e.getMessage());
+        }
+    }
+
+    private void populateRecentTxns(java.util.List<com.piggypro.model.Expense> list) {
+        Label[]     names   = {txnName1,     txnName2,     txnName3,     txnName4};
+        Label[]     cats    = {txnCategory1, txnCategory2, txnCategory3, txnCategory4};
+        Label[]     dates   = {txnDate1,     txnDate2,     txnDate3,     txnDate4};
+        Label[]     amounts = {txnAmount1,   txnAmount2,   txnAmount3,   txnAmount4};
+        javafx.scene.layout.HBox[] rows = {txnRow1, txnRow2, txnRow3, txnRow4};
+
+        java.time.format.DateTimeFormatter fmt =
+                java.time.format.DateTimeFormatter.ofPattern("dd MMM");
+
+        for (int i = 0; i < 4; i++) {
+            if (rows[i] == null) continue;
+            if (i < list.size()) {
+                com.piggypro.model.Expense e = list.get(i);
+                rows[i].setVisible(true);
+                rows[i].setManaged(true);
+                names[i].setText(e.getDescription());
+                cats[i].setText(e.getCategory());
+                dates[i].setText(e.getDate().format(fmt));
+                boolean isIncome = e.isIncome();
+                String amtText = (isIncome ? "+" : "-") + "Rs." +
+                        String.format("%,.0f", e.getAmount());
+                amounts[i].setText(amtText);
+                amounts[i].getStyleClass().removeAll("txn-amount-neg","txn-amount-pos");
+                amounts[i].getStyleClass().add(isIncome ? "txn-amount-pos" : "txn-amount-neg");
+            } else {
+                rows[i].setVisible(false);
+                rows[i].setManaged(false);
+            }
         }
     }
 
@@ -208,7 +248,7 @@ public class DashboardController implements Initializable {
         setIcon(iconBudgets,       "clock.png");
         setIcon(iconReports,       "file-text.png");
         setIcon(iconSettings,      "settings.png");
-        setIcon(iconHelp,          "help-circle.png");
+        setIcon(iconHelp,          "circle-question-mark.png");
         setIcon(iconExport,        "zap.png");
         // Topbar
         setIcon(searchIcon,        "search.png");
@@ -218,11 +258,7 @@ public class DashboardController implements Initializable {
         // Chart more buttons
         setIcon(moreIconSpending,  "more-horizontal.png");
         setIcon(moreIconCategory,  "more-horizontal.png");
-        // Transaction rows
-        setIcon(txnIcon1,          "shopping-bag.png");
-        setIcon(txnIcon2,          "credit-card.png");
-        setIcon(txnIcon3,          "send.png");
-        setIcon(txnIcon4,          "phone.png");
+        // Transaction row icons set dynamically based on category
     }
 
     private void setIcon(ImageView view, String filename) {

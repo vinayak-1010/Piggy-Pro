@@ -132,44 +132,10 @@ public class ReportsController implements Initializable {
         put("Other",           "#64748B");
     }};
 
-    // ── Sample category data ───────────────────────
-    private static final List<CategoryRow> CATEGORY_DATA = List.of(
-            new CategoryRow("Food and Dining", 6,  4820, 38.8),
-            new CategoryRow("Shopping",        3,  3730, 30.0),
-            new CategoryRow("Rent",            1,  8500, 14.5),
-            new CategoryRow("Utilities",       2,  1499, 10.8),
-            new CategoryRow("Transport",       2,   680,  8.3),
-            new CategoryRow("Entertainment",   1,   649,  5.2)
-    );
-
-    // ── Sample monthly data ────────────────────────
-    private static final List<MonthRow> MONTHLY_DATA = List.of(
-            new MonthRow("October 2025",  18, 11200, 45000),
-            new MonthRow("November 2025", 22,  9800, 45000),
-            new MonthRow("December 2025", 25, 13400, 45000),
-            new MonthRow("January 2026",  20, 10600, 57000),
-            new MonthRow("February 2026", 19, 12100, 45000),
-            new MonthRow("March 2026",    15, 12430, 57000)
-    );
-
-    // ── Sample all-transactions data ───────────────
-    private static final List<TxnRow> TXN_DATA = List.of(
-            new TxnRow("14 Mar 2026", "Salary Credit",       "Income",          45000, "Income"),
-            new TxnRow("14 Mar 2026", "Amazon Shopping",     "Shopping",         1240, "Expense"),
-            new TxnRow("13 Mar 2026", "Swiggy Order",        "Food and Dining",   340, "Expense"),
-            new TxnRow("12 Mar 2026", "Phone Recharge",      "Utilities",         399, "Expense"),
-            new TxnRow("11 Mar 2026", "Uber Ride",           "Transport",         180, "Expense"),
-            new TxnRow("10 Mar 2026", "House Rent",          "Rent",             8500, "Expense"),
-            new TxnRow("09 Mar 2026", "Netflix",             "Entertainment",     649, "Expense"),
-            new TxnRow("08 Mar 2026", "Zomato Order",        "Food and Dining",   285, "Expense"),
-            new TxnRow("07 Mar 2026", "Electricity Bill",    "Utilities",        1100, "Expense"),
-            new TxnRow("06 Mar 2026", "Metro Recharge",      "Transport",         500, "Expense"),
-            new TxnRow("05 Mar 2026", "Freelance Payment",   "Income",          12000, "Income"),
-            new TxnRow("04 Mar 2026", "Grocery Shopping",    "Shopping",         2100, "Expense"),
-            new TxnRow("03 Mar 2026", "Coffee Shop",         "Food and Dining",   180, "Expense"),
-            new TxnRow("02 Mar 2026", "Gym Membership",      "Entertainment",     800, "Expense"),
-            new TxnRow("01 Mar 2026", "Book Purchase",       "Shopping",          450, "Expense")
-    );
+    // ── Live data lists (populated from DB on generate) ──
+    private List<CategoryRow> liveCategoryData = new java.util.ArrayList<>();
+    private List<MonthRow>    liveMonthlyData  = new java.util.ArrayList<>();
+    private List<TxnRow>      liveTxnData      = new java.util.ArrayList<>();
 
     // ── Recent export history ──────────────────────
     private record ExportRecord(String filename, String date, String format) {}
@@ -184,12 +150,60 @@ public class ReportsController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         loadIcons();
         setupFilters();
-        buildCategoryTable();
-        updateSummaryChips();
-        buildRecentExports();
         if (SessionManager.isLoggedIn()) {
             userDisplayName.setText(SessionManager.getUsername());
             avatarInitials.setText(SessionManager.getInitials());
+        }
+        // Disable export — not yet implemented
+        downloadBtn.setDisable(true);
+        downloadBtn.setText("Export (Coming Soon)");
+        loadLiveData();
+        buildCategoryTable();
+        updateSummaryChips();
+        buildRecentExports();
+    }
+
+    private void loadLiveData() {
+        if (!SessionManager.isLoggedIn()) return;
+        int userId = SessionManager.getUserId();
+        LocalDate to   = filterDateTo.getValue()   != null ? filterDateTo.getValue()   : LocalDate.now();
+        LocalDate from = filterDateFrom.getValue() != null ? filterDateFrom.getValue() : to.withDayOfMonth(1);
+        ExpenseService svc = ExpenseService.getInstance();
+
+        // Category rows
+        liveCategoryData.clear();
+        java.util.Map<String, Double> catMap = svc.getCategoryTotals(userId, from, to);
+        double grandTotal = catMap.values().stream().mapToDouble(Double::doubleValue).sum();
+        for (java.util.Map.Entry<String, Double> e : catMap.entrySet()) {
+            int count = (int) svc.getFiltered(userId, from, to, e.getKey(), "Expense", null, null, null).size();
+            double pct = grandTotal > 0 ? e.getValue() / grandTotal * 100 : 0;
+            liveCategoryData.add(new CategoryRow(e.getKey(), count, e.getValue(), pct));
+        }
+
+        // Monthly rows (last 6 months)
+        liveMonthlyData.clear();
+        for (int i = 5; i >= 0; i--) {
+            java.time.YearMonth ym = java.time.YearMonth.now().minusMonths(i);
+            LocalDate mFrom = ym.atDay(1);
+            LocalDate mTo   = ym.atEndOfMonth();
+            double exp = svc.getTotalExpenses(userId, mFrom, mTo);
+            double inc = svc.getTotalIncome(userId, mFrom, mTo);
+            int cnt = svc.getFiltered(userId, mFrom, mTo, null, null, null, null, null).size();
+            liveMonthlyData.add(new MonthRow(
+                    ym.format(java.time.format.DateTimeFormatter.ofPattern("MMMM yyyy")),
+                    cnt, exp, inc));
+        }
+
+        // All transactions
+        liveTxnData.clear();
+        java.util.List<com.piggypro.model.Expense> exps =
+                svc.getFiltered(userId, from, to, null, null, null, null, null);
+        java.time.format.DateTimeFormatter df =
+                java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy");
+        for (com.piggypro.model.Expense e : exps) {
+            liveTxnData.add(new TxnRow(
+                    e.getDate().format(df), e.getDescription(),
+                    e.getCategory(), e.getAmount(), e.getType()));
         }
     }
 
@@ -204,7 +218,7 @@ public class ReportsController implements Initializable {
         setIcon(iconBudgets,      "clock.png");
         setIcon(iconReports,      "file-text.png");
         setIcon(iconSettings,     "settings.png");
-        setIcon(iconHelp,         "help-circle.png");
+        setIcon(iconHelp,         "circle-question-mark.png");
         setIcon(iconExport,       "zap.png");
         setIcon(searchIcon,       "search.png");
         setIcon(notifIcon,        "bell.png");
@@ -335,7 +349,7 @@ public class ReportsController implements Initializable {
         reportTable.getColumns().addAll(colCat, colTxns, colTotal, colPct);
         reportTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         reportTable.setItems(
-                FXCollections.observableArrayList(CATEGORY_DATA.toArray()));
+                FXCollections.observableArrayList(liveCategoryData.toArray()));
     }
 
     @SuppressWarnings("unchecked")
@@ -384,7 +398,7 @@ public class ReportsController implements Initializable {
         reportTable.getColumns().addAll(colMonth, colTxns, colExp, colInc);
         reportTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         reportTable.setItems(
-                FXCollections.observableArrayList(MONTHLY_DATA.toArray()));
+                FXCollections.observableArrayList(liveMonthlyData.toArray()));
     }
 
     @SuppressWarnings("unchecked")
@@ -446,39 +460,20 @@ public class ReportsController implements Initializable {
         reportTable.getColumns().addAll(colDate, colDesc, colCat, colAmt);
         reportTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         reportTable.setItems(
-                FXCollections.observableArrayList(TXN_DATA.toArray()));
+                FXCollections.observableArrayList(liveTxnData.toArray()));
     }
 
     // ══════════════════════════════════════════════
     // SUMMARY CHIPS
     // ══════════════════════════════════════════════
     private void updateSummaryChips() {
-        if (SessionManager.isLoggedIn()) {
-            try {
-                int userId = SessionManager.getUserId();
-                LocalDate to   = filterDateTo.getValue()   != null ? filterDateTo.getValue()   : LocalDate.now();
-                LocalDate from = filterDateFrom.getValue() != null ? filterDateFrom.getValue() : to.withDayOfMonth(1);
-                ExpenseService svc = ExpenseService.getInstance();
-                double expenses = svc.getTotalExpenses(userId, from, to);
-                double income   = svc.getTotalIncome(userId, from, to);
-                double net      = income - expenses;
-                int    count    = svc.getFiltered(userId, from, to, null, null, null, null, null).size();
-                chipExpenses.setText("Rs. " + fmt(expenses));
-                chipIncome.setText("Rs. "   + fmt(income));
-                chipNet.setText("Rs. "      + fmt(net));
-                chipCount.setText(String.valueOf(count));
-                return;
-            } catch (Exception e) {
-                System.out.println("Reports chips error: " + e.getMessage());
-            }
-        }
-        // Fallback to sample data
-        double expenses = CATEGORY_DATA.stream().mapToDouble(CategoryRow::total).sum();
-        double income   = TXN_DATA.stream().filter(t -> "Income".equals(t.type())).mapToDouble(TxnRow::amount).sum();
+        double expenses = liveCategoryData.stream().mapToDouble(CategoryRow::total).sum();
+        double income   = liveTxnData.stream()
+                .filter(t -> "Income".equals(t.type())).mapToDouble(TxnRow::amount).sum();
         chipExpenses.setText("Rs. " + fmt(expenses));
         chipIncome.setText("Rs. "   + fmt(income));
         chipNet.setText("Rs. "      + fmt(income - expenses));
-        chipCount.setText(String.valueOf(TXN_DATA.size()));
+        chipCount.setText(String.valueOf(liveTxnData.size()));
     }
 
     // ══════════════════════════════════════════════

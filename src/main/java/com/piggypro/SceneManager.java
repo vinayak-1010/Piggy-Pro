@@ -82,9 +82,25 @@ public class SceneManager {
     private static void switchTo(Screen screen) {
         try {
             // Load FXML
-            FXMLLoader loader = new FXMLLoader(
-                    SceneManager.class.getResource(
-                            "/com/piggypro/view/" + screen.fxml));
+            java.net.URL fxmlUrl = SceneManager.class.getResource(
+                    "/com/piggypro/view/" + screen.fxml);
+
+            if (fxmlUrl == null) {
+                System.err.println("FXML not found at: /com/piggypro/view/" + screen.fxml);
+                System.err.println("Make sure the file exists in: src/main/resources/com/piggypro/view/");
+                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                        javafx.scene.control.Alert.AlertType.ERROR);
+                alert.setTitle("Navigation Error");
+                alert.setHeaderText("Screen not found: " + screen.fxml);
+                alert.setContentText(
+                        "The file was not found at:\n" +
+                                "src/main/resources/com/piggypro/view/" + screen.fxml +
+                                "\n\nMake sure all FXML files are in the correct folder and run Maven Reload.");
+                alert.showAndWait();
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Parent root = loader.load();
 
             // Fade out current scene (if one exists)
