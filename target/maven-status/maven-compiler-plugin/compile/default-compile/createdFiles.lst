@@ -1,2 +1,6 @@
 com\piggypro\service\BudgetService$BudgetResult.class
+com\piggypro\controller\HelpController.class
+com\piggypro\controller\SettingsController.class
+com\piggypro\util\UserPopupUtil.class
 com\piggypro\dao\BudgetDAO$Budget.class
+com\piggypro\controller\HelpController$FAQ.class

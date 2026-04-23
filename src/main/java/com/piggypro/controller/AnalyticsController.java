@@ -1,10 +1,12 @@
 package com.piggypro.controller;
 
 import com.piggypro.SceneManager;
+import com.piggypro.util.UserPopupUtil;
 import com.piggypro.SessionManager;
 import com.piggypro.service.ExpenseService;
 
 import javafx.fxml.FXML;
+import javafx.scene.input.MouseEvent;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
@@ -139,19 +141,19 @@ public class AnalyticsController implements Initializable {
         setIcon(sidebarLogoIcon,  "piggy-bank.png");
         setIcon(iconOverview,     "grid.png");
         setIcon(iconTransactions, "bookmark.png");
-        setIcon(iconAnalytics,    "chart-bar-big.png");
+        setIcon(iconAnalytics,    "bar-chart.png");
         setIcon(iconBudgets,      "clock.png");
         setIcon(iconReports,      "file-text.png");
         setIcon(iconSettings,     "settings.png");
-        setIcon(iconHelp,         "circle-question-mark.png");
+        setIcon(iconHelp,         "help-circle.png");
         setIcon(iconExport,       "zap.png");
         setIcon(searchIcon,       "search.png");
         setIcon(notifIcon,        "bell.png");
         setIcon(chevronIcon,      "chevron-down.png");
-        setIcon(moreIconDonut,    "move-horizontal.png");
-        setIcon(moreIconBar,      "move-horizontal.png");
-        setIcon(iconStatSpent,    "dollar-sign (1).png");
-        setIcon(iconStatTop,      "star (1).png");
+        setIcon(moreIconDonut,    "more-horizontal.png");
+        setIcon(moreIconBar,      "more-horizontal.png");
+        setIcon(iconStatSpent,    "dollar-sign.png");
+        setIcon(iconStatTop,      "star.png");
         setIcon(iconStatAvg,      "calendar.png");
         setIcon(iconStatCount,    "list.png");
     }
@@ -480,10 +482,16 @@ public class AnalyticsController implements Initializable {
             drawBarChart(barChartArea);
     }
 
-    @FXML private void handleMoreDonut() { /* no-op */ }
-    @FXML private void handleMoreBar()   { /* no-op */ }
+    @FXML private void handleMoreDonut() { SceneManager.navigateTo(SceneManager.Screen.REPORTS); }
+    @FXML private void handleMoreBar()   { SceneManager.navigateTo(SceneManager.Screen.REPORTS); }
+
+    @FXML
+    private void handleUserChip(MouseEvent e) {
+        UserPopupUtil.show((javafx.scene.Node) e.getSource(),
+                analyticsRoot.getScene().getWindow());
+    }
     @FXML private void handleNotifications() { notifDot.setVisible(false); }
-    @FXML private void handleExport()    { /* TODO: ExportService */ }
+    @FXML private void handleExport()    { SceneManager.navigateTo(SceneManager.Screen.REPORTS); }
 
     // ══════════════════════════════════════════════
     // NAV HANDLERS
@@ -508,8 +516,8 @@ public class AnalyticsController implements Initializable {
         SceneManager.navigateTo(SceneManager.Screen.REPORTS);
         setActiveNav(navReports);
     }
-    @FXML private void handleNavSettings()     { setActiveNav(navSettings); }
-    @FXML private void handleNavHelp()         { setActiveNav(navHelp); }
+    @FXML private void handleNavSettings()     { SceneManager.navigateTo(SceneManager.Screen.SETTINGS); }
+    @FXML private void handleNavHelp()         { SceneManager.navigateTo(SceneManager.Screen.HELP); }
 
     private void setActiveNav(Button selected) {
         for (Button b : new Button[]{navOverview, navTransactions, navAnalytics,

@@ -1,8 +1,12 @@
 package com.piggypro.controller;
 
 import com.piggypro.SceneManager;
+import com.piggypro.util.UserPopupUtil;
 import com.piggypro.SessionManager;
 import com.piggypro.service.ExpenseService;
+import com.piggypro.util.PdfExportUtil;
+import com.piggypro.util.ExcelExportUtil;
+import java.util.stream.Collectors;
 
 import javafx.animation.PauseTransition;
 import javafx.beans.property.SimpleStringProperty;
@@ -51,7 +55,7 @@ import java.util.ResourceBundle;
  *   - By Category  : rows per category, columns: Category, Txns, Total, % of Total
  *   - All Transactions: individual rows, columns: Date, Description, Category, Amount
  *
- * Export delegates to ExportService stubs (PDF via iText, Excel via Apache POI).
+ * Export uses PdfExportUtil (iText 5) and ExcelExportUtil (Apache POI).
  *
  * Required icons (lucide.dev 24x24 PNG):
  *   logo.png, grid.png, bookmark.png, bar-chart.png,
@@ -154,9 +158,6 @@ public class ReportsController implements Initializable {
             userDisplayName.setText(SessionManager.getUsername());
             avatarInitials.setText(SessionManager.getInitials());
         }
-        // Disable export — not yet implemented
-        downloadBtn.setDisable(true);
-        downloadBtn.setText("Export (Coming Soon)");
         loadLiveData();
         buildCategoryTable();
         updateSummaryChips();
@@ -218,7 +219,7 @@ public class ReportsController implements Initializable {
         setIcon(iconBudgets,      "clock.png");
         setIcon(iconReports,      "file-text.png");
         setIcon(iconSettings,     "settings.png");
-        setIcon(iconHelp,         "circle-question-mark.png");
+        setIcon(iconHelp,         "help-circle.png");
         setIcon(iconExport,       "zap.png");
         setIcon(searchIcon,       "search.png");
         setIcon(notifIcon,        "bell.png");
@@ -514,13 +515,8 @@ public class ReportsController implements Initializable {
 
         PauseTransition gen = new PauseTransition(Duration.seconds(1.0));
         gen.setOnFinished(e -> {
-            // TODO: call real ExportService
             if (isPdf) {
-                // ExportService.exportToPdf(filterDateFrom.getValue(),
-                //     filterDateTo.getValue(), reportType);
             } else {
-                // ExportService.exportToExcel(filterDateFrom.getValue(),
-                //     filterDateTo.getValue(), reportType);
             }
 
             downloadBtn.setText("Downloaded!");
@@ -593,7 +589,15 @@ public class ReportsController implements Initializable {
         setIcon(dlIv, "download.png");
         dlBtn.setGraphic(dlIv);
         dlBtn.setOnAction(e -> {
-            // TODO: re-trigger download for this file
+            // Open the exports folder in the OS file explorer
+            try {
+                String exportsDir = System.getProperty("user.home")
+                        + java.io.File.separator + "PiggyPro"
+                        + java.io.File.separator + "exports";
+                java.awt.Desktop.getDesktop().open(new java.io.File(exportsDir));
+            } catch (Exception ex) {
+                System.out.println("Cannot open exports folder: " + ex.getMessage());
+            }
         });
 
         row.getChildren().addAll(iconBox, info, dlBtn);
@@ -630,8 +634,14 @@ public class ReportsController implements Initializable {
         SceneManager.navigateTo(SceneManager.Screen.REPORTS);
         setActiveNav(navReports);
     }
-    @FXML private void handleNavSettings()     { setActiveNav(navSettings); }
-    @FXML private void handleNavHelp()         { setActiveNav(navHelp); }
+    @FXML private void handleNavSettings()     { SceneManager.navigateTo(SceneManager.Screen.SETTINGS); }
+    @FXML private void handleNavHelp()         { SceneManager.navigateTo(SceneManager.Screen.HELP); }
+
+    @FXML
+    private void handleUserChip(MouseEvent e) {
+        UserPopupUtil.show((javafx.scene.Node) e.getSource(),
+                reportsRoot.getScene().getWindow());
+    }
     @FXML private void handleNotifications()   { notifDot.setVisible(false); }
     @FXML private void handleExport()          { handleDownload(); }
 

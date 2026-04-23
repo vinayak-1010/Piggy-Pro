@@ -42,7 +42,9 @@ public class SceneManager {
         TRANSACTIONS  ("TransactionsView.fxml", 1100, 680),
         ANALYTICS     ("AnalyticsView.fxml",    1100, 680),
         BUDGETS       ("BudgetsView.fxml",      1100, 680),
-        REPORTS       ("ReportsView.fxml",      1100, 680);
+        REPORTS       ("ReportsView.fxml",      1100, 680),
+        SETTINGS      ("SettingsView.fxml",     1100, 680),
+        HELP          ("HelpView.fxml",          1100, 680);
 
         final String fxml;
         final int    width;

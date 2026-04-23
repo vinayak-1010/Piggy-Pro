@@ -2,8 +2,10 @@ C:\Users\Lenovo\IdeaProjects\PiggyPro\src\main\java\com\piggypro\App.java
 C:\Users\Lenovo\IdeaProjects\PiggyPro\src\main\java\com\piggypro\controller\AnalyticsController.java
 C:\Users\Lenovo\IdeaProjects\PiggyPro\src\main\java\com\piggypro\controller\BudgetsController.java
 C:\Users\Lenovo\IdeaProjects\PiggyPro\src\main\java\com\piggypro\controller\DashboardController.java
+C:\Users\Lenovo\IdeaProjects\PiggyPro\src\main\java\com\piggypro\controller\HelpController.java
 C:\Users\Lenovo\IdeaProjects\PiggyPro\src\main\java\com\piggypro\controller\LoginController.java
 C:\Users\Lenovo\IdeaProjects\PiggyPro\src\main\java\com\piggypro\controller\ReportsController.java
+C:\Users\Lenovo\IdeaProjects\PiggyPro\src\main\java\com\piggypro\controller\SettingsController.java
 C:\Users\Lenovo\IdeaProjects\PiggyPro\src\main\java\com\piggypro\controller\TransactionsController.java
 C:\Users\Lenovo\IdeaProjects\PiggyPro\src\main\java\com\piggypro\dao\BudgetDAO.java
 C:\Users\Lenovo\IdeaProjects\PiggyPro\src\main\java\com\piggypro\dao\CategoryDAO.java
@@ -27,5 +29,4 @@ C:\Users\Lenovo\IdeaProjects\PiggyPro\src\main\java\com\piggypro\util\ChartUtil.
 C:\Users\Lenovo\IdeaProjects\PiggyPro\src\main\java\com\piggypro\util\ExcelExportUtil.java
 C:\Users\Lenovo\IdeaProjects\PiggyPro\src\main\java\com\piggypro\util\PasswordUtil.java
 C:\Users\Lenovo\IdeaProjects\PiggyPro\src\main\java\com\piggypro\util\PdfExportUtil.java
-C:\Users\Lenovo\IdeaProjects\PiggyPro\src\main\java\com\piggypro\util\SceneManager.java
-C:\Users\Lenovo\IdeaProjects\PiggyPro\src\main\java\com\piggypro\util\SessionManager.java
+C:\Users\Lenovo\IdeaProjects\PiggyPro\src\main\java\com\piggypro\util\UserPopupUtil.java

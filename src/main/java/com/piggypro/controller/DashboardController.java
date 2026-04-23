@@ -1,11 +1,13 @@
 package com.piggypro.controller;
 
 import com.piggypro.SceneManager;
+import com.piggypro.util.UserPopupUtil;
 import com.piggypro.SessionManager;
 import com.piggypro.model.Expense;
 import com.piggypro.service.ExpenseService;
 
 import javafx.fxml.FXML;
+import javafx.scene.input.MouseEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -248,7 +250,7 @@ public class DashboardController implements Initializable {
         setIcon(iconBudgets,       "clock.png");
         setIcon(iconReports,       "file-text.png");
         setIcon(iconSettings,      "settings.png");
-        setIcon(iconHelp,          "circle-question-mark.png");
+        setIcon(iconHelp,          "help-circle.png");
         setIcon(iconExport,        "zap.png");
         // Topbar
         setIcon(searchIcon,        "search.png");
@@ -559,8 +561,8 @@ public class DashboardController implements Initializable {
         SceneManager.navigateTo(SceneManager.Screen.REPORTS);
         setActiveNav(navReports);
     }
-    @FXML private void handleNavSettings()     { setActiveNav(navSettings); }
-    @FXML private void handleNavHelp()         { setActiveNav(navHelp); }
+    @FXML private void handleNavSettings()     { SceneManager.navigateTo(SceneManager.Screen.SETTINGS); }
+    @FXML private void handleNavHelp()         { SceneManager.navigateTo(SceneManager.Screen.HELP); }
 
     private void setActiveNav(Button selected) {
         Button[] all = {navOverview, navTransactions, navAnalytics,
@@ -570,7 +572,6 @@ public class DashboardController implements Initializable {
         }
         if (!selected.getStyleClass().contains("active"))
             selected.getStyleClass().add("active");
-        // TODO: load the corresponding view into the center pane
     }
 
     // ══════════════════════════════════════════════════
@@ -578,33 +579,53 @@ public class DashboardController implements Initializable {
     // ══════════════════════════════════════════════════
     @FXML
     private void handleNotifications() {
-        // TODO: show notifications popover
         notifDot.setVisible(false);
     }
 
     // ══════════════════════════════════════════════════
     // CONTENT HANDLERS
     // ══════════════════════════════════════════════════
+    // ── Period cycling for spending chart ──────────
+    private final String[] PERIODS = {"Last 7 days", "Last 30 days", "Last 90 days"};
+    private int periodIndex = 1; // default = 30 days
+
     @FXML
     private void handlePeriodSpending() {
-        // TODO: cycle through period options (7d / 30d / 90d)
+        periodIndex = (periodIndex + 1) % PERIODS.length;
+        periodSpending.setText(PERIODS[periodIndex]);
+        // Reload dashboard with new period
+        int days = new int[]{7, 30, 90}[periodIndex];
+        LocalDate to   = LocalDate.now();
+        LocalDate from = to.minusDays(days - 1);
+        if (SessionManager.isLoggedIn()) {
+            try {
+                int userId = SessionManager.getUserId();
+                ExpenseService svc = ExpenseService.getInstance();
+                double expenses = svc.getTotalExpenses(userId, from, to);
+                double income   = svc.getTotalIncome(userId, from, to);
+                valueExpenses.setText("Rs. " + String.format("%,.0f", expenses));
+                valueBalance.setText("Rs. " + String.format("%,.0f", income - expenses));
+            } catch (Exception ex) {
+                System.out.println("Period change error: " + ex.getMessage());
+            }
+        }
     }
 
-    @FXML private void handleMoreSpending()  { /* TODO: context menu */ }
-    @FXML private void handleMoreCategory()  { /* TODO: context menu */ }
+    @FXML private void handleMoreSpending()  { SceneManager.navigateTo(SceneManager.Screen.ANALYTICS); }
+    @FXML private void handleMoreCategory()  { SceneManager.navigateTo(SceneManager.Screen.ANALYTICS); }
 
     @FXML
     private void handleViewAllTransactions() {
-        setActiveNav(navTransactions);
+        SceneManager.navigateTo(SceneManager.Screen.TRANSACTIONS);
     }
 
     @FXML
     private void handlePeriodBudget() {
-        // TODO: cycle months
+        SceneManager.navigateTo(SceneManager.Screen.BUDGETS);
     }
 
     @FXML
     private void handleExport() {
-        // TODO: trigger ExportService (PDF / Excel)
+        SceneManager.navigateTo(SceneManager.Screen.REPORTS);
     }
 }

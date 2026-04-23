@@ -29,7 +29,7 @@ public class Expense {
     /** Full constructor — used when reading from DB. */
     public Expense(int id, int userId, String description,
                    double amount, String type, String category,
-                   LocalDate date, String note, String createdAt) {
+                    LocalDate date, String note, String createdAt) {
         this.id          = id;
         this.userId      = userId;
         this.description = description;
