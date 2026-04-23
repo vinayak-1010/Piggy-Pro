@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.piggypro.controller.HelpController"
+            fx:id="helpRoot"
+            styleClass="dashboard-root"
+            stylesheets="@../css/app.css">
+
+    <left>
+        <VBox styleClass="sidebar">
+            <HBox styleClass="sidebar-logo-area" alignment="CENTER_LEFT" spacing="10.0">
+                <StackPane styleClass="sidebar-logo-box">
+                    <ImageView fx:id="sidebarLogoIcon" fitWidth="18.0" fitHeight="18.0" preserveRatio="true"/>
+                </StackPane>
+                <Label styleClass="sidebar-app-name" text="Piggy Pro"/>
+            </HBox>
+            <Label styleClass="nav-section" text="MAIN MENU"/>
+            <Button fx:id="navOverview"     styleClass="nav-btn" text="Overview"     onAction="#handleNavOverview">
+                <graphic><ImageView fx:id="iconOverview"     fitWidth="15.0" fitHeight="15.0" preserveRatio="true"/></graphic>
+                <VBox.margin><Insets top="1.0" bottom="1.0" left="8.0" right="8.0"/></VBox.margin>
+            </Button>
+            <Button fx:id="navTransactions" styleClass="nav-btn" text="Transactions" onAction="#handleNavTransactions">
+                <graphic><ImageView fx:id="iconTransactions" fitWidth="15.0" fitHeight="15.0" preserveRatio="true"/></graphic>
+                <VBox.margin><Insets top="1.0" bottom="1.0" left="8.0" right="8.0"/></VBox.margin>
+            </Button>
+            <Button fx:id="navAnalytics"    styleClass="nav-btn" text="Analytics"    onAction="#handleNavAnalytics">
+                <graphic><ImageView fx:id="iconAnalytics"    fitWidth="15.0" fitHeight="15.0" preserveRatio="true"/></graphic>
+                <VBox.margin><Insets top="1.0" bottom="1.0" left="8.0" right="8.0"/></VBox.margin>
+            </Button>
+            <Button fx:id="navBudgets"      styleClass="nav-btn" text="Budgets"      onAction="#handleNavBudgets">
+                <graphic><ImageView fx:id="iconBudgets"      fitWidth="15.0" fitHeight="15.0" preserveRatio="true"/></graphic>
+                <VBox.margin><Insets top="1.0" bottom="1.0" left="8.0" right="8.0"/></VBox.margin>
+            </Button>
+            <Button fx:id="navReports"      styleClass="nav-btn" text="Reports"      onAction="#handleNavReports">
+                <graphic><ImageView fx:id="iconReports"      fitWidth="15.0" fitHeight="15.0" preserveRatio="true"/></graphic>
+                <VBox.margin><Insets top="1.0" bottom="1.0" left="8.0" right="8.0"/></VBox.margin>
+            </Button>
+            <Region VBox.vgrow="ALWAYS"/>
+            <Label styleClass="nav-section" text="PREFERENCES"/>
+            <Button fx:id="navSettings"     styleClass="nav-btn" text="Settings"     onAction="#handleNavSettings">
+                <graphic><ImageView fx:id="iconSettings"     fitWidth="15.0" fitHeight="15.0" preserveRatio="true"/></graphic>
+                <VBox.margin><Insets top="1.0" bottom="1.0" left="8.0" right="8.0"/></VBox.margin>
+            </Button>
+            <Button fx:id="navHelp"         styleClass="nav-btn,active" text="Help Center" onAction="#handleNavHelp">
+                <graphic><ImageView fx:id="iconHelp"         fitWidth="15.0" fitHeight="15.0" preserveRatio="true"/></graphic>
+                <VBox.margin><Insets top="1.0" bottom="1.0" left="8.0" right="8.0"/></VBox.margin>
+            </Button>
+            <VBox styleClass="sidebar-bottom-area">
+                <Button fx:id="btnExport" styleClass="nav-btn,export" text="Export Data" onAction="#handleExport">
+                    <graphic><ImageView fx:id="iconExport" fitWidth="15.0" fitHeight="15.0" preserveRatio="true"/></graphic>
+                </Button>
+            </VBox>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox>
+            <!-- TOPBAR -->
+            <HBox styleClass="topbar" alignment="CENTER_LEFT" spacing="12.0">
+                <Region HBox.hgrow="ALWAYS"/>
+                <StackPane>
+                    <Button fx:id="notifBtn" styleClass="notif-btn" onAction="#handleNotifications">
+                        <graphic><ImageView fx:id="notifIcon" fitWidth="15.0" fitHeight="15.0" preserveRatio="true"/></graphic>
+                    </Button>
+                    <Circle fx:id="notifDot" styleClass="notif-dot" radius="3.5" translateX="8.0" translateY="-8.0"/>
+                </StackPane>
+                <HBox styleClass="user-chip" alignment="CENTER_LEFT" spacing="7.0" onMouseClicked="#handleUserChip">
+                    <StackPane styleClass="user-avatar">
+                        <Label fx:id="avatarInitials" styleClass="avatar-initials" text="VS"/>
+                    </StackPane>
+                    <Label fx:id="userDisplayName" styleClass="user-display-name" text="Vinayak"/>
+                    <ImageView fx:id="chevronIcon" fitWidth="12.0" fitHeight="12.0" preserveRatio="true" styleClass="field-icon"/>
+                </HBox>
+            </HBox>
+
+            <!-- CONTENT -->
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="content-scroll"
+                        hbarPolicy="NEVER" vbarPolicy="AS_NEEDED">
+                <content>
+                    <VBox styleClass="content-area" spacing="14.0">
+
+                        <Label styleClass="page-title" text="Help Center"/>
+                        <Label styleClass="page-subtitle" text="Frequently asked questions and support"/>
+
+                        <!-- Search bar -->
+                        <HBox styleClass="help-search-bar" alignment="CENTER_LEFT">
+                            <ImageView fx:id="searchIcon" fitWidth="15.0" fitHeight="15.0"
+                                       preserveRatio="true" styleClass="field-icon"/>
+                            <TextField fx:id="searchField" styleClass="help-search-field"
+                                       promptText="Search for help..." HBox.hgrow="ALWAYS"
+                                       onKeyReleased="#handleSearch"/>
+                        </HBox>
+
+                        <!-- Category filter chips -->
+                        <HBox spacing="8.0" alignment="CENTER_LEFT">
+                            <Button fx:id="btnAll"         styleClass="help-category-btn,active" text="All"          onAction="#handleFilterAll"/>
+                            <Button fx:id="btnGettingStarted" styleClass="help-category-btn"     text="Getting Started" onAction="#handleFilterGettingStarted"/>
+                            <Button fx:id="btnTransactions"   styleClass="help-category-btn"     text="Transactions" onAction="#handleFilterTransactions"/>
+                            <Button fx:id="btnBudgets"        styleClass="help-category-btn"     text="Budgets"      onAction="#handleFilterBudgets"/>
+                            <Button fx:id="btnReports"        styleClass="help-category-btn"     text="Reports"      onAction="#handleFilterReports"/>
+                            <Button fx:id="btnAccount"        styleClass="help-category-btn"     text="Account"      onAction="#handleFilterAccount"/>
+                        </HBox>
+
+                        <!-- FAQ list — built by controller -->
+                        <VBox fx:id="faqContainer" spacing="8.0"/>
+
+                        <!-- Contact card -->
+                        <VBox styleClass="contact-support-card" spacing="8.0">
+                            <Label styleClass="contact-title" text="Still need help?"/>
+                            <Label styleClass="contact-sub"
+                                   text="Can't find what you're looking for? Reach out to the Piggy Pro team."/>
+                            <Region prefHeight="4.0"/>
+                            <HBox spacing="10.0">
+                                <Button styleClass="contact-btn"
+                                        text="Email Support"
+                                        onAction="#handleEmailSupport"/>
+                                <Button styleClass="contact-btn"
+                                        text="View Documentation"
+                                        onAction="#handleViewDocs"/>
+                            </HBox>
+                        </VBox>
+
+                        <Region prefHeight="8.0"/>
+                    </VBox>
+                </content>
+            </ScrollPane>
+        </VBox>
+    </center>
+
+</BorderPane>
