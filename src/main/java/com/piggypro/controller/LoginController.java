@@ -115,7 +115,7 @@ public class LoginController implements Initializable {
     private void loadIcons() {
         // Brand panel icons
         setIcon(logoIcon,     "piggy-bank.png");
-        setIcon(featureIcon1, "bar-chart.png");
+        setIcon(featureIcon1, "chart-bar-big.png");
         setIcon(featureIcon2, "bell.png");
         setIcon(featureIcon3, "file-text.png");
         setIcon(featureIcon4, "lock.png");

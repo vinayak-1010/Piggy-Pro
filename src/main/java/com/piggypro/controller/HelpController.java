@@ -66,11 +66,11 @@ public class HelpController implements Initializable {
         setIcon(sidebarLogoIcon,  "piggy-bank.png");
         setIcon(iconOverview,     "grid.png");
         setIcon(iconTransactions, "bookmark.png");
-        setIcon(iconAnalytics,    "bar-chart.png");
+        setIcon(iconAnalytics,    "chart-bar-big.png");
         setIcon(iconBudgets,      "clock.png");
         setIcon(iconReports,      "file-text.png");
         setIcon(iconSettings,     "settings.png");
-        setIcon(iconHelp,         "help-circle.png");
+        setIcon(iconHelp,         "circle-question-mark.png");
         setIcon(iconExport,       "zap.png");
         setIcon(notifIcon,        "bell.png");
         setIcon(chevronIcon,      "chevron-down.png");
